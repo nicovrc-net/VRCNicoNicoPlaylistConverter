@@ -339,7 +339,7 @@ public class Main extends Application {
         });
         root.getChildren().add(button1);
 
-
+/*
         Button button2 = new Button("動画プレーヤー間変換 (おまけ)");
         button2.setLayoutX(30);
         button2.setLayoutY(100);
@@ -348,7 +348,7 @@ public class Main extends Application {
             sub_stage.close();
         });
         root.getChildren().add(button2);
-
+*/
         sub_stage.setScene(scene);
         sub_stage.showAndWait();
 
