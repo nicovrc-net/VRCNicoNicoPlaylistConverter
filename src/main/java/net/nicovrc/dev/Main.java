@@ -1,6 +1,7 @@
 package net.nicovrc.dev;
 
 
+import com.sun.security.auth.module.NTSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -204,7 +205,8 @@ public class Main extends Application {
             System.out.println("[Info] アップデートが見つかりませんでした。");
         } else {
             System.out.println("[Info] アップデートが見つかりました。");
-            if (isWindowsBatchStart){
+            NTSystem ntSystem = new NTSystem();
+            if (isWindowsBatchStart || !ntSystem.getName().isEmpty()){
                 File c_file = new File("./");
                 final String CurrentFolderPass = c_file.getCanonicalPath().replaceAll("\\\\", "/");
 
@@ -241,6 +243,75 @@ public class Main extends Application {
                 file1.close();
                 pw = null;
                 file1 = null;
+
+                sub_stage.setResizable(false);
+                sub_stage.setMaximized(false);
+                sub_stage.setFullScreen(false);
+                sub_stage.setTitle("アップデートのお知らせ");
+                sub_stage.setWidth(400);
+                sub_stage.setHeight(200);
+
+                AnchorPane root = new AnchorPane();
+                Scene scene = new Scene(root);
+
+                Button button = new Button("閉じる");
+                button.setLayoutX(300);
+                button.setLayoutY(10);
+                button.setOnAction(e -> {
+                    sub_stage.close();
+                });
+                root.getChildren().add(button);
+
+                Label update_label1 = new Label("アップデートのお知らせ");
+                update_label1.setLayoutX(5);
+                update_label1.setLayoutY(5);
+                update_label1.setFont(new Font(16));
+                root.getChildren().add(update_label1);
+
+                Label update_label2 = new Label("アップデートがあります。");
+                update_label2.setLayoutX(10);
+                update_label2.setLayoutY(40);
+                root.getChildren().add(update_label2);
+
+                Label update_label3 = new Label("現在のバージョン : " + Function.Version);
+                update_label3.setLayoutX(10);
+                update_label3.setLayoutY(80);
+                root.getChildren().add(update_label3);
+
+                Label update_label4 = new Label("最新のバージョン : " + new_version);
+                update_label4.setLayoutX(10);
+                update_label4.setLayoutY(100);
+                root.getChildren().add(update_label4);
+
+                Button update_button = new Button("アップデート");
+                update_button.setLayoutX(10);
+                update_button.setLayoutY(120);
+                update_button.setOnAction(e -> {
+                    try {
+                        final Runtime runtime = Runtime.getRuntime();
+                        final Process exec0 = runtime.exec(new String[]{"./tools/update1.bat"});
+                        Thread.ofVirtual().start(() -> {
+                            try {
+                                Thread.sleep(5000L);
+                            } catch (Exception ex) {
+                                //ex.printStackTrace();
+                            }
+
+                            if (exec0.isAlive()) {
+                                exec0.destroy();
+                            }
+                        });
+                        exec0.waitFor();
+                    } catch (Exception ex){
+                        // ex.printStackTrace();
+                    }
+                    sub_stage.close();
+                });
+                root.getChildren().add(update_button);
+
+                sub_stage.setScene(scene);
+                sub_stage.showAndWait();
+
             } else {
                 System.out.println("[Info] こちらからDLし直してください");
                 System.out.println("https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases/download/#ver#/VRCNicoNicoPlaylistConverter.zip".replaceAll("#ver#",new_version));
