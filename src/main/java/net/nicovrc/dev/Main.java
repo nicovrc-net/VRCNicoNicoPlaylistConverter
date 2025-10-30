@@ -16,15 +16,23 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main extends Application {
 
     private static final Stage main_stage = new Stage();
     private static final Stage sub_stage = new Stage();
 
-    public static void main(String[] args) {
+    private static final Pattern matcher_version = Pattern.compile("<id>tag:github\\.com,2008:Repository/(\\d+)/(.+)</id>");
 
-        System.out.println("VRCNicoNicoPlayerlistConverter Ver " + Function.Version);
+    public static void main(String[] args) {
 
         try {
             launch();
@@ -36,6 +44,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        System.out.println("VRCNicoNicoPlayerlistConverter Ver " + Function.Version);
+
         // Cookie情報
         File file = new File("./tools/cookie.txt");
         System.out.println("[Info] ニコニコ動画のログイン情報確認");
@@ -162,8 +172,79 @@ public class Main extends Application {
             System.out.println("[Info] ログイン情報が見つかりました。");
         }
 
-        //
-        System.out.println("[]");
+        // アップデート確認
+        System.out.println("[Info] アップデート確認");
+        final boolean isWindowsBatchStart = new File("./tools").exists() && new File("./tools/jdk-21.0.2").exists();
+        String new_version = Function.Version;
+        try (HttpClient client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .followRedirects(HttpClient.Redirect.ALWAYS)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build()) {
 
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases.atom"))
+                    .headers("User-Agent", Function.UserAgent)
+                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                    .GET()
+                    .build();
+            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            //System.out.println(send.body());
+            Matcher matcher = matcher_version.matcher(send.body());
+            if (matcher.find()){
+                new_version = matcher.group(2);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            return;
+        }
+
+        if (Function.Version.equals(new_version)){
+            System.out.println("[Info] アップデートが見つかりませんでした。");
+        } else {
+            System.out.println("[Info] アップデートが見つかりました。");
+            if (isWindowsBatchStart){
+                File c_file = new File("./");
+                final String CurrentFolderPass = c_file.getCanonicalPath().replaceAll("\\\\", "/");
+
+                File update_file = new File("./tools/update1.bat");
+                if (update_file.exists()){
+                    update_file.delete();
+                }
+                update_file = new File("./tools/update2.bat");
+                if (update_file.exists()){
+                    update_file.delete();
+                }
+
+                FileWriter file1 = new FileWriter("./tools/update1.bat");
+                PrintWriter pw = new PrintWriter(new BufferedWriter(file1));
+                pw.print("start ./tools/update2.bat".replaceAll("\\./", CurrentFolderPass+"/"));
+                pw.close();
+                file1.close();
+                pw = null;
+                file1 = null;
+
+                file1 = new FileWriter("./tools/update2.bat");
+                pw = new PrintWriter(new BufferedWriter(file1));
+                String str = """
+                        curl https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases/download/#ver#/VRCNicoNicoPlaylistConverter.zip -L --output ./tools/VRCNicoNicoPlaylistConverter.zip
+                        tar -xf ./tools/VRCNicoNicoPlaylistConverter.zip -C ./tools\\
+                        del ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
+                        del ./start.bat
+                        move ./tools\\VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar ./
+                        move ./tools\\start.bat ./
+                        exit
+                        """;
+                pw.print(str.replaceAll("#ver#", new_version).replaceAll("\\./", CurrentFolderPass.replaceAll("/", "\\\\\\\\")+"\\\\"));
+                pw.close();
+                file1.close();
+                pw = null;
+                file1 = null;
+            } else {
+                System.out.println("[Info] こちらからDLし直してください");
+                System.out.println("https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases/download/#ver#/VRCNicoNicoPlaylistConverter.zip".replaceAll("#ver#",new_version));
+            }
+        }
     }
 }
