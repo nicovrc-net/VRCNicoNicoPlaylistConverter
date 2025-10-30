@@ -332,7 +332,7 @@ public class Main extends Application {
 
         Button button1 = new Button("マイリスト取得");
         button1.setLayoutX(30);
-        button1.setLayoutY(60);
+        button1.setLayoutY(40);
         button1.setOnAction(e -> {
             mode[0] = "mylist";
             sub_stage.close();
@@ -342,7 +342,7 @@ public class Main extends Application {
 
         Button button2 = new Button("動画プレーヤー間変換 (おまけ)");
         button2.setLayoutX(30);
-        button2.setLayoutY(160);
+        button2.setLayoutY(100);
         button2.setOnAction(e -> {
             mode[0] = "converter";
             sub_stage.close();
