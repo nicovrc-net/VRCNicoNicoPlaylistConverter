@@ -1,7 +1,6 @@
 package net.nicovrc.dev;
 
 import com.google.gson.Gson;
-import net.nicovrc.dev.JsonData.*;
 import net.nicovrc.dev.data.NicoNicoCookie;
 
 import java.net.URI;
@@ -23,8 +22,9 @@ public class Function {
     public static final String NicoNicoLoginUrl = "https://account.nicovideo.jp/login?site=niconico&next_url=%2F&sec=header_pc&cmnhd_ref=device%3Dpc%26site%3Dniconico%26pos%3Dheader_login%26page%3Dtop";
     public static final String LoginAfterUrl = "https://www.nicovideo.jp/";
 
-    private static Pattern cookie_pattern1 = Pattern.compile("(.+)=(.+); expires=");
-    private static Pattern cookie_pattern2 = Pattern.compile("(.+)=(.+); Path=/;");
+    private static Pattern cookie_pattern1 = Pattern.compile("(.+)=(.+); Max-Age=");
+    private static Pattern cookie_pattern2 = Pattern.compile("(.+)=(.+); expires=");
+    private static Pattern cookie_pattern3 = Pattern.compile("(.+)=(.+); Path=");
 
     public static Gson gson = new Gson();
 
@@ -54,6 +54,7 @@ public class Function {
                 //System.out.println(str);
                 Matcher matcher = cookie_pattern1.matcher(str);
                 if (matcher.find()){
+                    //System.out.println(matcher.group(1));
                     if (matcher.group(1).equals("nicosid")){
                         cookie.setNicosid(matcher.group(2));
                         break;
@@ -67,9 +68,7 @@ public class Function {
 
 
             //System.out.println("mail_tel="+ URLEncoder.encode(email, StandardCharsets.UTF_8) +"&password="+URLEncoder.encode(password, StandardCharsets.UTF_8)+"&auth_id="+new Date().getTime());
-            // 1761743071200
-            // 1761739825135
-            // 1617687725
+            //System.out.println("registrationActionTrackId="+cookie.getRegistrationActionTrackId()+"; nicosid="+cookie.getNicosid());
             request = HttpRequest.newBuilder()
                     .uri(new URI("https://account.nicovideo.jp/login/redirector?show_button_twitter=1&show_button_facebook=1&site=niconico&sec=header_pc&next_url=%2F"))
                     .headers("User-Agent", Function.UserAgent)
@@ -91,7 +90,7 @@ public class Function {
 
             if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().equals(LoginAfterUrl)){
                 for (String s : map.get("set-cookie")) {
-                    Matcher matcher = cookie_pattern1.matcher(s);
+                    Matcher matcher = cookie_pattern2.matcher(s);
                     if (matcher.find() && matcher.group(1).equals("user_session") && !matcher.group(2).equals("deleted")){
                         cookie.setLogin(true);
                         cookie.setUser_session(matcher.group(2));
@@ -102,7 +101,7 @@ public class Function {
             } else if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().startsWith("https://account.nicovideo.jp/mfa?")) {
                 cookie.setMfw_url(send.headers().firstValue("location").get());
                 for (String s : map.get("set-cookie")) {
-                    Matcher matcher = cookie_pattern2.matcher(s);
+                    Matcher matcher = cookie_pattern3.matcher(s);
                     if (matcher.find() && matcher.group(1).equals("mfa_session") && !matcher.group(2).equals("deleted")){
                         cookie.setMfa_session(matcher.group(2));
                         break;
@@ -118,7 +117,7 @@ public class Function {
 
     }
 
-    public static NicoNicoCookie NicoNicoLogin(NicoNicoCookie cookie, String code){
+    public static NicoNicoCookie NicoNicoLogin(NicoNicoCookie cookie, String code) throws Exception{
 
         // debug用
         if (code == null || code.isEmpty()){
@@ -133,6 +132,7 @@ public class Function {
                 .connectTimeout(Duration.ofSeconds(5))
                 .build()) {
 
+            //System.out.println(cookie.getMfw_url());
             //System.out.println("nicosid="+cookie.getNicosid()+"; mfa_session="+cookie.getMfa_session());
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(cookie.getMfw_url()))
@@ -146,18 +146,18 @@ public class Function {
 
             HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 
-            Map<String, List<String>> map = send.headers().map();
+            /*Map<String, List<String>> map = send.headers().map();
             map.forEach((name, value)->{
                 System.out.println("--- " + name + " ---");
                 for (String str : value){
                     System.out.println(str);
                 }
-            });
+            });*/
 
             if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().startsWith("https://account.nicovideo.jp/login/mfa/callback")){
                 String location = send.headers().firstValue("location").get();
-                System.out.println("url : "+ location);
-                System.out.println("cookie : " + "nicosid="+cookie.getNicosid()+"; mfa_session="+cookie.getMfa_session());
+                //System.out.println("url : "+ location);
+                //System.out.println("cookie : " + "nicosid="+cookie.getNicosid()+"; mfa_session="+cookie.getMfa_session());
 
                 request = HttpRequest.newBuilder()
                         .uri(new URI(location))
@@ -169,27 +169,31 @@ public class Function {
                         .build();
 
                 send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-                Map<String, List<String>> map1 = send.headers().map();
-                map1.forEach((name, value)->{
+                Map<String, List<String>> map = send.headers().map();
+                /*map.forEach((name, value)->{
                     System.out.println("--- " + name + " ---");
                     for (String str : value){
                         System.out.println(str);
                     }
-                });
+                });*/
                 //System.out.println(send.body());
 
+                if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().equals(LoginAfterUrl)){
+                    for (String str : map.get("set-cookie")) {
+                        Matcher matcher = cookie_pattern1.matcher(str);
+                        if (matcher.find() && matcher.group(1).equals("user_session") && !matcher.group(2).equals("deleted")){
+                            cookie.setLogin(true);
+                            cookie.setUser_session(matcher.group(2));
+                            break;
+                        }
+                    }
+                }
 
             }
 
-            // https://account.nicovideo.jp/mfa?site=niconico&continue=https%3A%2F%2Faccount.nicovideo.jp%2Flogin%2Fmfa%2Fcallback%3Fcsrf_token%3D1761751102422_sHRISwU0wCuY3eusmAIlx9hjY9OhFDRW0VE6f_Pscx8%26facebook%3D1%26site%3Dniconico%26sec%3Dheader_pc%26next_url%3D%252Fwatch%252Fsm9%253F%26twitter%3D1
-            // https://account.nicovideo.jp/login/mfa/callback?csrf_token=1761751102422_sHRISwU0wCuY3eusmAIlx9hjY9OhFDRW0VE6f_Pscx8&facebook=1&site=niconico&sec=header_pc&next_url=%2Fwatch%2Fsm9%3F&twitter=1&mfa_result=131256034_bJRSlhOubgPKkP8k2WO6wijbtvHjFPmG&site=niconico
-            // https://account.nicovideo.jp/login/mfa/callback?csrf_token=1761751102422_sHRISwU0wCuY3eusmAIlx9hjY9OhFDRW0VE6f_Pscx8&facebook=1&site=niconico&sec=header_pc&next_url=%2Fwatch%2Fsm9%3F&twitter=1&mfa_result=131256034_bJRSlhOubgPKkP8k2WO6wijbtvHjFPmG&site=niconico
-
-        } catch (Exception e){
-            // e.printStackTrace();
         }
 
-        return null;
+        return cookie;
     }
 
 }
