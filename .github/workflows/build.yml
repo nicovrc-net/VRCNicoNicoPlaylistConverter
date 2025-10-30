@@ -58,8 +58,30 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           wget https://r2.7mi.site/vrc/VRCNicoNicoPlaylist_start.bat
+          wget https://r2.7mi.site/vrc/VRCNicoNicoPlaylist_start_linux.sh
           mv ./VRCNicoNicoPlaylist_start.bat start.bat
-          zip VRCNicoNicoPlaylistConverter.zip VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar start.bat
+          mv ./VRCNicoNicoPlaylist_start_linux.sh start_forLinux.sh
+          zip VRCNicoNicoPlaylistConverter.zip VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar start.bat start_forLinux.sh
+        shell: bash
+
+      - name: Linux Bash Setup Test
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          chmod +x ./start_forLinux.sh
+          screen -UAmdS test ./start_forLinux.sh
+          sleep 5s
+          if [ -d ./tools ]; then
+             echo "Check JDK"
+             if [ -d ./tools/jdk-21.0.2 ]; then
+                echo "Check JavaFX"
+                if [ -d ./tools/javafx-sdk-21.0.9 ]; then
+                   echo "OK"
+                else
+                   exit 1
+          else
+             exit 1
+          fi
+
         shell: bash
 
       - name: Create Release
