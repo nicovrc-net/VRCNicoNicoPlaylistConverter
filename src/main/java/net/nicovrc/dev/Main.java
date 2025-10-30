@@ -317,6 +317,43 @@ public class Main extends Application {
             sub_stage.showAndWait();
         }
 
+        // 動作モード選択
+        sub_stage.setResizable(false);
+        sub_stage.setMaximized(false);
+        sub_stage.setFullScreen(false);
+        sub_stage.setTitle("動作モード");
+        sub_stage.setWidth(400);
+        sub_stage.setHeight(200);
+
+        AnchorPane root = new AnchorPane();
+        Scene scene = new Scene(root);
+
+        final String[] mode = {null};
+
+        Button button1 = new Button("マイリスト取得");
+        button1.setLayoutX(30);
+        button1.setLayoutY(60);
+        button1.setOnAction(e -> {
+            mode[0] = "mylist";
+            sub_stage.close();
+        });
+        root.getChildren().add(button1);
+
+
+        Button button2 = new Button("動画プレーヤー間変換 (おまけ)");
+        button2.setLayoutX(30);
+        button2.setLayoutY(160);
+        button2.setOnAction(e -> {
+            mode[0] = "converter";
+            sub_stage.close();
+        });
+        root.getChildren().add(button2);
+
+        sub_stage.setScene(scene);
+        sub_stage.showAndWait();
+
+
+        // メイン画面組み立て
 
     }
 }
