@@ -96,7 +96,6 @@ public class Main extends Application {
             Label login_label4 = new Label("メールアドレスまたは電話番号　または　パスワードが間違えています。");
             login_label4.setLayoutX(10);
             login_label4.setLayoutY(150);
-            login_label4.setDisable(true);
 
             Label login_label5 = new Label("認証コード");
             login_label5.setLayoutX(10);
@@ -134,7 +133,7 @@ public class Main extends Application {
                 Thread.ofVirtual().start(()->{
                     cookie[0] = Function.NicoNicoLogin(mail_field.getText(), password_field.getText());
 
-                    if (!cookie[0].isLogin() && cookie[0].getMfw_url().isEmpty()){
+                    if (!cookie[0].isLogin() && (cookie[0].getMfw_url() == null || cookie[0].getMfw_url().isEmpty())){
                         Platform.runLater(()->{
                             root.getChildren().remove(login_label4);
                             root.getChildren().add(login_label4);
@@ -160,7 +159,7 @@ public class Main extends Application {
             sub_stage.setScene(new Scene(root));
             sub_stage.showAndWait();
 
-            if (!cookie[0].getNicosid().isEmpty()){
+            if (cookie[0].isLogin()){
                 try (FileWriter file1 = new FileWriter("./tools/cookie.txt");
                      PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
 
@@ -173,6 +172,10 @@ public class Main extends Application {
             }
         } else {
             System.out.println("[Info] ログイン情報が見つかりました。");
+        }
+
+        if (!file.exists()){
+            return;
         }
 
         // アップデート確認
