@@ -1,0 +1,2 @@
+# VRCNicoNicoPlaylistConverter
+GUIで動くツールの予定
