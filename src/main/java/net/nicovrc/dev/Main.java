@@ -160,15 +160,17 @@ public class Main extends Application {
             sub_stage.setScene(new Scene(root));
             sub_stage.showAndWait();
 
-            try (FileWriter file1 = new FileWriter("./tools/cookie.txt");
-                 PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+            if (!cookie[0].getNicosid().isEmpty()){
+                try (FileWriter file1 = new FileWriter("./tools/cookie.txt");
+                     PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
 
-                pw.print("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session());
-            } catch (Exception e){
-                e.printStackTrace();
-                return;
+                    pw.print("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session());
+                } catch (Exception e){
+                    e.printStackTrace();
+                    return;
+                }
+                System.out.println("[Info] ログイン成功");
             }
-            System.out.println("[Info] ログイン成功");
         } else {
             System.out.println("[Info] ログイン情報が見つかりました。");
         }
