@@ -2,17 +2,19 @@ package net.nicovrc.dev;
 
 
 import com.sun.security.auth.module.NTSystem;
+import com.sun.security.auth.module.UnixSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import net.nicovrc.dev.data.NicoNicoCookie;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -23,6 +25,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Base64;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -163,7 +167,27 @@ public class Main extends Application {
                 try (FileWriter file1 = new FileWriter("./tools/cookie.txt");
                      PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
 
-                    pw.print("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session());
+                    String str = "";
+                    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")){
+                        str = new NTSystem().getName();
+                        str = (!str.isEmpty() ? str.substring(0, 1) : "") + (str.length() >= 3 ? str.substring(2, 3) : "") + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8) + (str.length() >= 5 ? str.substring(4, 5) : "") + (str.length() >= 7 ? str.substring(6, 7) : "");
+                    } else if (System.getProperty("os.name").toLowerCase(Locale.ROOT).equals("linux")){
+                        str = new UnixSystem().getUsername();
+                    } else {
+                        str = new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+                        str = (!str.isEmpty() ? str.substring(0, 1) : "") + (str.length() >= 3 ? str.substring(2, 3) : "") + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8) + (str.length() >= 5 ? str.substring(4, 5) : "") + (str.length() >= 7 ? str.substring(6, 7) : "");
+                    }
+
+                    Cipher encrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+                    final IvParameterSpec iv = new IvParameterSpec(str.getBytes());
+                    String ENCRYPT_KEY = (!str.isEmpty() ? str.substring(0, 1) : "") + (str.length() >= 3 ? str.substring(2, 3) : "") + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+                    final SecretKeySpec key = new SecretKeySpec(ENCRYPT_KEY.getBytes(), "AES");
+
+                    encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
+                    byte[] byteToken = encrypter.doFinal(("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session()).getBytes(StandardCharsets.UTF_8));
+
+                    pw.print(new String(Base64.getEncoder().encode(byteToken), StandardCharsets.UTF_8));
                 } catch (Exception e){
                     e.printStackTrace();
                     return;
