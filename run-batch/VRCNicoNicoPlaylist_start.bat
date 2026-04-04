@@ -16,5 +16,5 @@ if exist "./tools/" (
 	
 )
 rem 指示があった場合はjavaw.exeをjava.exeに変更してください
-start .\tools\jdk-21.0.2\bin\javaw.exe --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
+.\tools\jdk-21.0.2\bin\javaw.exe --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
 pause
