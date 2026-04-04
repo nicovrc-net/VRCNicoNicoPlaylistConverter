@@ -69,12 +69,16 @@ public class Main extends Application {
         final String ENCRYPT_KEY = key_str.substring(0, 1) + key_str.substring(2, 3) + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
         final SecretKeySpec key = new SecretKeySpec(Arrays.copyOf(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8), 32), "AES");
 
+
+        Cipher decrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        decrypter.init(Cipher.DECRYPT_MODE, key, iv);
+
+        Cipher encrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
+
         if (file.exists()){
             try {
                 // 復号化できなかったら削除する
-                Cipher decrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-                decrypter.init(Cipher.DECRYPT_MODE, key, iv);
 
                 String Text = null;
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))){
@@ -88,13 +92,15 @@ public class Main extends Application {
                     e.printStackTrace();
                 }
 
-                byte[] byteToken = Base64.getDecoder().decode(Text);
+                byte[] byteToken = Base64.getDecoder().decode(Text.substring(0, Text.length() - 1));
                 String s = new String(decrypter.doFinal(byteToken), StandardCharsets.UTF_8);
+
+                //System.out.println(s);
                 if (!s.startsWith("nicosid=")){
                     file.delete();
                 }
             } catch (Exception e){
-                //e.printStackTrace();
+                e.printStackTrace();
                 file.delete();
             }
         }
@@ -212,9 +218,6 @@ public class Main extends Application {
                 try (FileWriter file1 = new FileWriter("./tools/cookie.txt");
                      PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
 
-                    Cipher encrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-                    encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
                     byte[] byteToken = encrypter.doFinal(("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session()).getBytes(StandardCharsets.UTF_8));
 
                     pw.print(new String(Base64.getEncoder().encode(byteToken), StandardCharsets.UTF_8));
