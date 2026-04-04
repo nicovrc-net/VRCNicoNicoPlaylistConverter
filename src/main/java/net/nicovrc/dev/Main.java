@@ -346,43 +346,71 @@ public class Main extends Application {
             sub_stage.showAndWait();
         }
 
-        // 動作モード選択
-        sub_stage.setResizable(false);
-        sub_stage.setMaximized(false);
-        sub_stage.setFullScreen(false);
-        sub_stage.setTitle("動作モード");
-        sub_stage.setWidth(400);
-        sub_stage.setHeight(200);
+        // 初期画面
+        main_stage.setResizable(false);
+        main_stage.setFullScreen(false);
+        main_stage.setMaximized(false);
+        main_stage.setWidth(400);
+        main_stage.setHeight(600);
+        main_stage.setTitle("VRCNicoNicoPlayListConverter Ver" + Function.Version);
+        final AnchorPane main_root = new AnchorPane();
+        final Scene main_scene = new Scene(main_root);
 
-        AnchorPane root = new AnchorPane();
-        Scene scene = new Scene(root);
+        Label url_input_text = new Label("マイリストのURLまたは再生リスト化したいURLを入れてください\n※マイリストのURLの場合は1つだけ入れてください\n※再生リスト化したい場合は1つの行には1つURLを入れてください。");
+        url_input_text.setLayoutX(5);
+        url_input_text.setLayoutY(5);
+        //url_input_text.setFont(new Font(16));
+        main_root.getChildren().add(url_input_text);
 
-        final String[] mode = {null};
+        TextArea url_input = new TextArea();
+        //url_input.setFont(DefaultFont);
+        url_input.setLayoutX(5);
+        url_input.setLayoutY(65);
+        url_input.setPrefSize(350, 300);
+        url_input.setWrapText(false);
+        main_root.getChildren().add(url_input);
 
-        Button button1 = new Button("マイリスト取得");
-        button1.setLayoutX(30);
-        button1.setLayoutY(40);
-        button1.setOnAction(e -> {
-            mode[0] = "mylist";
-            sub_stage.close();
-        });
-        root.getChildren().add(button1);
+        Label output_mode_text = new Label("出力形式を選択してください。");
+        output_mode_text.setLayoutX(5);
+        output_mode_text.setLayoutY(380);
+        //output_mode_text.setFont(new Font(16));
+        main_root.getChildren().add(output_mode_text);
 
-/*
-        Button button2 = new Button("動画プレーヤー間変換 (おまけ)");
-        button2.setLayoutX(30);
-        button2.setLayoutY(100);
-        button2.setOnAction(e -> {
-            mode[0] = "converter";
-            sub_stage.close();
-        });
-        root.getChildren().add(button2);
-*/
-        sub_stage.setScene(scene);
-        sub_stage.showAndWait();
+        ComboBox<String> output_combo = new ComboBox<>();
+        output_combo.setLayoutX(5);
+        output_combo.setLayoutY(400);
+        output_combo.getItems().addAll("",
+                "iwaSync (json形式)",
+                "KineL式(りら式) (prefab形式)",
+                "YamaPlayer (json形式)",
+                "VizVid (json形式)"
+        );
+        output_combo.setPrefWidth(250);
+        main_root.getChildren().add(output_combo);
 
+        Label site_select_text = new Label("変換するサイトを選択してください");
+        site_select_text.setLayoutX(5);
+        site_select_text.setLayoutY(440);
+        //site_select_text.setFont(new Font(16));
+        main_root.getChildren().add(site_select_text);
 
-        // メイン画面組み立て
+        ComboBox<String> site_select = new ComboBox<>();
+        site_select.setLayoutX(5);
+        site_select.setLayoutY(460);
+        site_select.getItems().addAll("",
+                "nicovrc.net",
+                "tool.suzumebachi.xyz"
+        );
+        site_select.setPrefWidth(250);
+        main_root.getChildren().add(site_select);
+
+        Button run_button = new Button("実行");
+        run_button.setLayoutX(5);
+        run_button.setLayoutY(500);
+        main_root.getChildren().add(run_button);
+
+        main_stage.setScene(main_scene);
+        main_stage.showAndWait();
 
     }
 }
