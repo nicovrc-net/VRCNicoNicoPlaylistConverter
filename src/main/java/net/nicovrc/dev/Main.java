@@ -53,27 +53,6 @@ public class Main extends Application {
         File file = new File("./tools/cookie.txt");
         System.out.println("[Info] ニコニコ動画のログイン情報確認");
 
-        // 暗号化 / 復号化鍵
-        String key_str = new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
-        if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")){
-            key_str = new NTSystem().getName();
-            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
-        } else if (System.getProperty("os.name").toLowerCase(Locale.ROOT).equals("linux")){
-            key_str = new UnixSystem().getUsername();
-        } else {
-            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
-        }
-
-        final IvParameterSpec iv = new IvParameterSpec(Arrays.copyOf(key_str.getBytes(StandardCharsets.UTF_8), 16));
-        final String ENCRYPT_KEY = key_str.substring(0, 1) + key_str.substring(2, 3) + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
-        final SecretKeySpec key = new SecretKeySpec(Arrays.copyOf(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8), 32), "AES");
-
-
-        Cipher decrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        decrypter.init(Cipher.DECRYPT_MODE, key, iv);
-
-        Cipher encrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
 
         if (file.exists()){
             try {
@@ -91,8 +70,7 @@ public class Main extends Application {
                     e.printStackTrace();
                 }
 
-                byte[] byteToken = Base64.getDecoder().decode(Text.substring(0, Text.length() - 1));
-                String s = new String(decrypter.doFinal(byteToken), StandardCharsets.UTF_8);
+                String s = Function.DecrypterText(Text.substring(0, Text.length() - 1));
 
                 //System.out.println(s);
                 if (!s.startsWith("nicosid=")){
@@ -217,9 +195,7 @@ public class Main extends Application {
                 try (FileWriter file1 = new FileWriter("./tools/cookie.txt");
                      PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
 
-                    byte[] byteToken = encrypter.doFinal(("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session()).getBytes(StandardCharsets.UTF_8));
-
-                    pw.print(new String(Base64.getEncoder().encode(byteToken), StandardCharsets.UTF_8));
+                    pw.print(Function.EncrypterText("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session()));
                 } catch (Exception e){
                     e.printStackTrace();
                     return;

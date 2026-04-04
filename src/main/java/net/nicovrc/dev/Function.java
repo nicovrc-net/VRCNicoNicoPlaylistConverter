@@ -1,8 +1,13 @@
 package net.nicovrc.dev;
 
 import com.google.gson.Gson;
+import com.sun.security.auth.module.NTSystem;
+import com.sun.security.auth.module.UnixSystem;
 import net.nicovrc.dev.data.NicoNicoCookie;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -27,6 +32,8 @@ public class Function {
     private static Pattern cookie_pattern3 = Pattern.compile("(.+)=(.+); Path=");
 
     public static Gson gson = new Gson();
+
+    private static String key_str = new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
 
     public static NicoNicoCookie NicoNicoLogin(String email, String password){
 
@@ -194,6 +201,54 @@ public class Function {
         }
 
         return cookie;
+    }
+
+    public static String DecrypterText(String text) throws Exception {
+
+        if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")){
+            key_str = new NTSystem().getName();
+            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
+        } else if (System.getProperty("os.name").toLowerCase(Locale.ROOT).equals("linux")){
+            key_str = new UnixSystem().getUsername();
+        } else {
+            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
+        }
+
+        final IvParameterSpec iv = new IvParameterSpec(Arrays.copyOf(key_str.getBytes(StandardCharsets.UTF_8), 16));
+        final String ENCRYPT_KEY = key_str.substring(0, 1) + key_str.substring(2, 3) + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        final SecretKeySpec key = new SecretKeySpec(Arrays.copyOf(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8), 32), "AES");
+
+        Cipher decrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        decrypter.init(Cipher.DECRYPT_MODE, key, iv);
+
+        byte[] byteToken = Base64.getDecoder().decode(text);
+        String s = new String(decrypter.doFinal(byteToken), StandardCharsets.UTF_8);
+
+        return s;
+    }
+
+    public static String EncrypterText(String text) throws Exception {
+
+        if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")){
+            key_str = new NTSystem().getName();
+            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
+        } else if (System.getProperty("os.name").toLowerCase(Locale.ROOT).equals("linux")){
+            key_str = new UnixSystem().getUsername();
+        } else {
+            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
+        }
+
+        final IvParameterSpec iv = new IvParameterSpec(Arrays.copyOf(key_str.getBytes(StandardCharsets.UTF_8), 16));
+        final String ENCRYPT_KEY = key_str.substring(0, 1) + key_str.substring(2, 3) + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        final SecretKeySpec key = new SecretKeySpec(Arrays.copyOf(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8), 32), "AES");
+
+        Cipher encrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
+
+        byte[] byteToken = encrypter.doFinal(text.getBytes(StandardCharsets.UTF_8));
+
+        return new String(Base64.getEncoder().encode(byteToken), StandardCharsets.UTF_8);
+
     }
 
 }
