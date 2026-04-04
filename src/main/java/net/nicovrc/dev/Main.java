@@ -2,7 +2,6 @@ package net.nicovrc.dev;
 
 
 import com.sun.security.auth.module.NTSystem;
-import com.sun.security.auth.module.UnixSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -12,9 +11,6 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import net.nicovrc.dev.data.NicoNicoCookie;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -22,9 +18,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
