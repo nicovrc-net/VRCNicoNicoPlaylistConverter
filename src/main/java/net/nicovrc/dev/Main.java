@@ -18,6 +18,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,11 +41,62 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+
+        String lang = "";
+
         System.out.println("VRCNicoNicoPlayerlistConverter Ver " + Function.Version);
 
+        File file = new File("./lang/default.txt");
+        if (!file.exists()){
+            file = new File("./lang/ja.txt");
+            if (file.exists()){
+                lang = "ja";
+            } else {
+                try (HttpClient client = HttpClient.newBuilder()
+                        .version(HttpClient.Version.HTTP_2)
+                        .followRedirects(HttpClient.Redirect.ALWAYS)
+                        .connectTimeout(Duration.ofSeconds(5))
+                        .build()) {
+
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(new URI("https://raw.githubusercontent.com/nicovrc-net/VRCNicoNicoPlaylistConverter/refs/heads/master/lang/ja.txt"))
+                            .headers("User-Agent", Function.UserAgent)
+                            .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                            .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                            .GET()
+                            .build();
+                    HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                    //System.out.println(send.body());
+                    if (!new File("./lang").exists()){
+                        new File("./lang").mkdir();
+                    }
+                    try (FileWriter file1 = new FileWriter("./lang/ja.txt");
+                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+
+                        pw.print(send.body());
+                    } catch (Exception e){
+                        //e.printStackTrace();
+                    }
+                    try (FileWriter file1 = new FileWriter("./lang/default.txt");
+                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+
+                        pw.print(send.body());
+                    } catch (Exception e){
+                        //e.printStackTrace();
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            lang = "default";
+        }
+
+        final HashMap<String, String> langData = Function.getTextList(lang);
+
         // Cookie情報
-        File file = new File("./tools/cookie.txt");
-        System.out.println("[Info] ニコニコ動画のログイン情報確認");
+        file = new File("./tools/cookie.txt");
+        System.out.println("[Info] "+langData.get("niconico_login_check"));
 
 
         if (file.exists()){
@@ -76,7 +128,7 @@ public class Main extends Application {
         }
 
         if (!file.exists()){
-            System.out.println("[Info] ログイン情報が見つかりませんでした。 ログイン画面を表示します。");
+            System.out.println("[Info] "+langData.get("niconico_login_check_fail"));
 
             sub_stage.setResizable(false);
             sub_stage.setMaximized(false);
@@ -86,13 +138,13 @@ public class Main extends Application {
             sub_stage.setHeight(300);
             final AnchorPane root = new AnchorPane();
 
-            Label login_label1 = new Label("※何があっても自己責任でお願いします。");
+            Label login_label1 = new Label(langData.get("niconico_login_risk"));
             login_label1.setLayoutX(5);
             login_label1.setLayoutY(5);
             login_label1.setFont(new Font(16));
             root.getChildren().add(login_label1);
 
-            Label login_label2 = new Label("メールアドレスまたは電話番号");
+            Label login_label2 = new Label(langData.get("niconico_mail_tel"));
             login_label2.setLayoutX(10);
             login_label2.setLayoutY(30);
             root.getChildren().add(login_label2);
@@ -105,7 +157,7 @@ public class Main extends Application {
             mail_field.setPrefWidth(350);
             root.getChildren().add(mail_field);
 
-            Label login_label3 = new Label("パスワード");
+            Label login_label3 = new Label(langData.get("niconico_password"));
             login_label3.setLayoutX(10);
             login_label3.setLayoutY(70);
             root.getChildren().add(login_label3);
@@ -118,11 +170,11 @@ public class Main extends Application {
             password_field.setPrefWidth(350);
             root.getChildren().add(password_field);
 
-            Label login_label4 = new Label("メールアドレスまたは電話番号　または　パスワードが間違えています。");
+            Label login_label4 = new Label(langData.get("niconico_login_fail"));
             login_label4.setLayoutX(10);
             login_label4.setLayoutY(150);
 
-            Label login_label5 = new Label("認証コード");
+            Label login_label5 = new Label(langData.get("niconico_2fa_code"));
             login_label5.setLayoutX(10);
             login_label5.setLayoutY(170);
             login_label5.setDisable(false);
@@ -135,7 +187,7 @@ public class Main extends Application {
             mfw_field.setPrefWidth(350);
 
             NicoNicoCookie[] cookie = new NicoNicoCookie[]{null};
-            Button mfw_button = new Button("認証");
+            Button mfw_button = new Button(langData.get("niconico_2fa"));
             mfw_button.setLayoutX(10);
             mfw_button.setLayoutY(230);
             mfw_button.setOnAction(e -> {
@@ -151,7 +203,7 @@ public class Main extends Application {
                 });
             });
 
-            Button button = new Button("ログイン");
+            Button button = new Button(langData.get("niconico_login"));
             button.setLayoutX(10);
             button.setLayoutY(120);
             button.setOnAction(e -> {
@@ -193,10 +245,10 @@ public class Main extends Application {
                     e.printStackTrace();
                     return;
                 }
-                System.out.println("[Info] ログイン成功");
+                System.out.println("[Info] "+langData.get("niconico_login_success"));
             }
         } else {
-            System.out.println("[Info] ログイン情報が見つかりました。");
+            System.out.println("[Info] "+langData.get("niconico_login_check_found"));
         }
 
         if (!file.exists()){
@@ -204,7 +256,7 @@ public class Main extends Application {
         }
 
         // アップデート確認
-        System.out.println("[Info] アップデート確認");
+        System.out.println("[Info] "+langData.get("update_check"));
         final boolean isWindowsBatchStart = new File("./tools").exists() && new File("./tools/jdk-21.0.2").exists();
         String new_version = Function.Version;
         try (HttpClient client = HttpClient.newBuilder()
@@ -232,9 +284,9 @@ public class Main extends Application {
         }
 
         if (Function.Version.equals(new_version)){
-            System.out.println("[Info] アップデートが見つかりませんでした。");
+            System.out.println("[Info] "+langData.get("update_check_fail"));
         } else {
-            System.out.println("[Info] アップデートが見つかりました。");
+            System.out.println("[Info] "+langData.get("update_check_found"));
             NTSystem ntSystem = new NTSystem();
 
             if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
@@ -279,14 +331,14 @@ public class Main extends Application {
             sub_stage.setResizable(false);
             sub_stage.setMaximized(false);
             sub_stage.setFullScreen(false);
-            sub_stage.setTitle("アップデートのお知らせ");
+            sub_stage.setTitle(langData.get("update_notify"));
             sub_stage.setWidth(400);
             sub_stage.setHeight(200);
 
             AnchorPane root = new AnchorPane();
             Scene scene = new Scene(root);
 
-            Button button = new Button("閉じる");
+            Button button = new Button(langData.get("update_close"));
             button.setLayoutX(300);
             button.setLayoutY(10);
             button.setOnAction(e -> {
@@ -294,29 +346,29 @@ public class Main extends Application {
             });
             root.getChildren().add(button);
 
-            Label update_label1 = new Label("アップデートのお知らせ");
+            Label update_label1 = new Label(langData.get("update_notify"));
             update_label1.setLayoutX(5);
             update_label1.setLayoutY(5);
             update_label1.setFont(new Font(16));
             root.getChildren().add(update_label1);
 
-            Label update_label2 = new Label("アップデートがあります。");
+            Label update_label2 = new Label(langData.get("update_notify_update_found"));
             update_label2.setLayoutX(10);
             update_label2.setLayoutY(40);
             root.getChildren().add(update_label2);
 
-            Label update_label3 = new Label("現在のバージョン : " + Function.Version);
+            Label update_label3 = new Label(langData.get("update_notify_now_version").replaceAll("#ver#", Function.Version));
             update_label3.setLayoutX(10);
             update_label3.setLayoutY(80);
             root.getChildren().add(update_label3);
 
-            Label update_label4 = new Label("最新のバージョン : " + new_version);
+            Label update_label4 = new Label(langData.get("update_notify_new_version").replaceAll("#ver#", new_version));
             update_label4.setLayoutX(10);
             update_label4.setLayoutY(100);
             root.getChildren().add(update_label4);
 
             if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
-                Button update_button = new Button("アップデート");
+                Button update_button = new Button(langData.get("update_notify_update"));
                 update_button.setLayoutX(10);
                 update_button.setLayoutY(120);
                 update_button.setOnAction(e -> {
@@ -351,13 +403,13 @@ public class Main extends Application {
         main_stage.setResizable(false);
         main_stage.setFullScreen(false);
         main_stage.setMaximized(false);
-        main_stage.setWidth(400);
-        main_stage.setHeight(600);
+        main_stage.setWidth(450);
+        main_stage.setHeight(650);
         main_stage.setTitle("VRCNicoNicoPlayListConverter Ver" + Function.Version);
         final AnchorPane main_root = new AnchorPane();
         final Scene main_scene = new Scene(main_root);
 
-        Label url_input_text = new Label("マイリストのURLまたは再生リスト化したいURLを入れてください\n※マイリストのURLの場合は1つだけ入れてください\n※再生リスト化したい場合は1つの行には1つURLを入れてください。");
+        Label url_input_text = new Label(langData.get("main_mylist").replaceAll("\\\\n", "\n"));
         url_input_text.setLayoutX(5);
         url_input_text.setLayoutY(5);
         //url_input_text.setFont(new Font(16));
@@ -367,11 +419,11 @@ public class Main extends Application {
         //url_input.setFont(DefaultFont);
         url_input.setLayoutX(5);
         url_input.setLayoutY(65);
-        url_input.setPrefSize(350, 300);
+        url_input.setPrefSize(400, 300);
         url_input.setWrapText(false);
         main_root.getChildren().add(url_input);
 
-        Label output_mode_text = new Label("出力形式を選択してください。");
+        Label output_mode_text = new Label(langData.get("main_output"));
         output_mode_text.setLayoutX(5);
         output_mode_text.setLayoutY(380);
         //output_mode_text.setFont(new Font(16));
@@ -381,15 +433,15 @@ public class Main extends Application {
         output_combo.setLayoutX(5);
         output_combo.setLayoutY(400);
         output_combo.getItems().addAll("",
-                "iwaSync (json形式)",
-                "KineL式(りら式) (prefab形式)",
-                "YamaPlayer (json形式)",
-                "VizVid (json形式)"
+                "iwaSync ("+langData.get("main_json")+")",
+                "KineL式(りら式) ("+langData.get("main_prefab")+")",
+                "YamaPlayer ("+langData.get("main_json")+")",
+                "VizVid ("+langData.get("main_json")+")"
         );
-        output_combo.setPrefWidth(250);
+        output_combo.setPrefWidth(300);
         main_root.getChildren().add(output_combo);
 
-        Label site_select_text = new Label("変換するサイトを選択してください");
+        Label site_select_text = new Label(langData.get("main_output_site"));
         site_select_text.setLayoutX(5);
         site_select_text.setLayoutY(440);
         //site_select_text.setFont(new Font(16));
@@ -402,10 +454,10 @@ public class Main extends Application {
                 "nicovrc.net",
                 "tool.suzumebachi.xyz"
         );
-        site_select.setPrefWidth(250);
+        site_select.setPrefWidth(300);
         main_root.getChildren().add(site_select);
 
-        Button run_button = new Button("実行");
+        Button run_button = new Button(langData.get("main_output_button"));
         run_button.setLayoutX(5);
         run_button.setLayoutY(500);
         main_root.getChildren().add(run_button);

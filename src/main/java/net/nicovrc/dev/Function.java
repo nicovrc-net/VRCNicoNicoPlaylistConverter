@@ -8,6 +8,7 @@ import net.nicovrc.dev.data.NicoNicoCookie;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -251,4 +252,30 @@ public class Function {
 
     }
 
+    public static HashMap<String, String> getTextList(String lang){
+        File file = new File("./lang/"+lang+".txt");
+
+        String Text = null;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))){
+            String str;
+            StringBuilder sb = new StringBuilder();
+            while ((str = reader.readLine()) != null) {
+                sb.append(str).append("\n");
+            }
+            Text = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String s = Text.substring(0, Text.length() - 1);
+
+        HashMap<String, String> map = new HashMap<>();
+
+        for (String str : s.split("\n")) {
+            String[] split = str.split("=");
+            map.put(split[0], split[1]);
+        }
+
+        return map;
+    }
 }
