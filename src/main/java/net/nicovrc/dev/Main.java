@@ -462,6 +462,12 @@ public class Main extends Application {
         run_button.setLayoutY(500);
         main_root.getChildren().add(run_button);
 
+        Label status = new Label(langData.get("main_status_idle"));
+        status.setLayoutX(5);
+        status.setLayoutY(550);
+        //status.setFont(new Font(16));
+        main_root.getChildren().add(status);
+
         main_stage.setScene(main_scene);
         main_stage.showAndWait();
 
