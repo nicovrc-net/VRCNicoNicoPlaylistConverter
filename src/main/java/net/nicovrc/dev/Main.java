@@ -577,7 +577,7 @@ public class Main extends Application {
 
                     String jsonFileName = "./NicoNicoJson.json";
                     if (playlistTitle != null){
-                        jsonFileName = playlistTitle;
+                        jsonFileName = playlistTitle+".json";
                     }
 
                     if (new File(jsonFileName).exists()){
