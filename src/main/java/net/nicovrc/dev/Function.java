@@ -1,9 +1,12 @@
 package net.nicovrc.dev;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.sun.security.auth.module.NTSystem;
 import com.sun.security.auth.module.UnixSystem;
 import net.nicovrc.dev.data.NicoNicoCookie;
+import net.nicovrc.dev.data.NicoNicoPlayList;
+import net.nicovrc.dev.data.PlayListData;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -28,9 +31,15 @@ public class Function {
     public static final String NicoNicoLoginUrl = "https://account.nicovideo.jp/login?site=niconico&next_url=%2F&sec=header_pc&cmnhd_ref=device%3Dpc%26site%3Dniconico%26pos%3Dheader_login%26page%3Dtop";
     public static final String LoginAfterUrl = "https://www.nicovideo.jp/";
 
+    public static final Pattern mylist_url = Pattern.compile("https://www\\.nicovideo\\.jp/user/(\\d+)/mylist/(\\d+)");
+    public static final Pattern matcher_Json = Pattern.compile("<meta name=\"server-response\" content=\"\\{(.+)}\" />");
+    public static final Pattern matcher_JsonNico = Pattern.compile("<script id=\"embedded-data\" data-props=\"(.+)\"></script><script id=\"");
+
     private static Pattern cookie_pattern1 = Pattern.compile("(.+)=(.+); Max-Age=");
     private static Pattern cookie_pattern2 = Pattern.compile("(.+)=(.+); expires=");
     private static Pattern cookie_pattern3 = Pattern.compile("(.+)=(.+); Path=");
+
+    private static Pattern matcher_NicoNicoMyList = Pattern.compile("data-initial-data=\"\\{(.+)\\}");
 
     public static Gson gson = new Gson();
 
@@ -277,5 +286,112 @@ public class Function {
         }
 
         return map;
+    }
+
+    public static String getVideoTitle(String url, String cookieText){
+        String str = "";
+        JsonElement json = null;
+
+        try (HttpClient client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .followRedirects(HttpClient.Redirect.ALWAYS)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build()) {
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .headers("User-Agent", Function.UserAgent)
+                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                    .headers("Cookie", cookieText)
+                    .GET()
+                    .build();
+            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            //System.out.println(send.body());
+            String jsonText = send.body();
+
+            Matcher matcher = Function.matcher_Json.matcher(jsonText);
+
+            if (matcher.find()){
+                json = Function.gson.fromJson("{" + matcher.group(1).replaceAll("&quot;", "\"") + "}", JsonElement.class);
+            } else {
+                matcher = Function.matcher_JsonNico.matcher(jsonText);
+                if (matcher.find()){
+                    //System.out.println(matcher.group(1).replaceAll("&quot;", "\""));
+                    json = gson.fromJson(matcher.group(1).replaceAll("&quot;", "\""), JsonElement.class);
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            return str;
+        }
+
+        if (json != null) {
+            if (json.isJsonObject() && json.getAsJsonObject().has("data")) {
+                str = json.getAsJsonObject().get("data").getAsJsonObject().get("response").getAsJsonObject().get("video").getAsJsonObject().get("title").getAsString();
+            } else if (json.isJsonObject() && json.getAsJsonObject().has("program")) {
+                str = json.getAsJsonObject().get("program").getAsJsonObject().get("title").getAsString();
+            }
+        }
+
+        return str;
+    }
+
+    public static NicoNicoPlayList getPlayList(String url, String cookieText){
+        final NicoNicoPlayList playList = new NicoNicoPlayList();
+        List<PlayListData> list = new ArrayList<>();
+
+        JsonElement json = null;
+        try (HttpClient client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .followRedirects(HttpClient.Redirect.ALWAYS)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build()) {
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .headers("User-Agent", Function.UserAgent)
+                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                    .headers("Cookie", cookieText)
+                    .GET()
+                    .build();
+            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            //System.out.println(send.body());
+            String html = send.body();
+
+            Matcher matcher = matcher_NicoNicoMyList.matcher(html);
+
+            if (matcher.find()){
+                String jsonText = matcher.group(1).replaceAll("&quot;", "\"");
+                //System.out.println(jsonText);
+                //System.out.println("{"+jsonText+"}");
+                json = gson.fromJson("{"+jsonText+"}", JsonElement.class);
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+            playList.setPlaylistData(list);
+            return playList;
+        }
+
+        if (json != null){
+            //System.out.println(json);
+            if (json.getAsJsonObject().has("nvapi") && json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().has("body") && json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("body").getAsJsonObject().get("meta").getAsJsonObject().get("status").getAsInt() == 200){
+                playList.setPlaylistTitle(json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("body").getAsJsonObject().get("data").getAsJsonObject().get("mylist").getAsJsonObject().get("name").getAsString());
+
+                for (JsonElement element : json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("body").getAsJsonObject().get("data").getAsJsonObject().get("mylist").getAsJsonObject().get("items").getAsJsonArray()) {
+                    PlayListData data = new PlayListData();
+                    data.setTitle(element.getAsJsonObject().get("video").getAsJsonObject().get("title").getAsString());
+                    data.setVideoURL("https://www.nicovideo.jp/watch/"+element.getAsJsonObject().get("watchId").getAsString());
+                    list.add(data);
+                }
+
+            }
+
+        }
+
+        playList.setPlaylistData(list);
+        return playList;
     }
 }
