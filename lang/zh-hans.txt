@@ -31,3 +31,4 @@ main_status_get_mylist_get_success=MyList 获取完成
 main_status_get_mylist_assembly=正在转换为 #player#
 main_status_get_success=已转换为 #player#！
 main_status_get_list=正在将 #now# / #max# 项转换为 #player#
+main_status_empty_error=错误：未指定 URL

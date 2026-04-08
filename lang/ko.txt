@@ -31,3 +31,4 @@ main_status_get_mylist_get_success=마이리스트 가져오기 완료
 main_status_get_mylist_assembly=#player#로 변환 중
 main_status_get_success=#player#로 변환 완료!
 main_status_get_list=#player#로 #now# / #max# 항목을 변환 중
+main_status_empty_error=오류: URL이 지정되지 않았습니다

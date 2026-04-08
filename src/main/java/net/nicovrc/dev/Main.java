@@ -1,6 +1,7 @@
 package net.nicovrc.dev;
 
 
+import com.google.gson.JsonElement;
 import com.sun.security.auth.module.NTSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -10,6 +11,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import net.nicovrc.dev.data.NicoNicoCookie;
+import net.nicovrc.dev.data.NicoNicoPlayList;
+import net.nicovrc.dev.data.PlayListData;
+import net.nicovrc.dev.json.iwaSync;
+import net.nicovrc.dev.json.iwaSync_Tracks;
 
 import java.io.*;
 import java.net.URI;
@@ -18,7 +23,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -457,16 +464,143 @@ public class Main extends Application {
         site_select.setPrefWidth(300);
         main_root.getChildren().add(site_select);
 
-        Button run_button = new Button(langData.get("main_output_button"));
-        run_button.setLayoutX(5);
-        run_button.setLayoutY(500);
-        main_root.getChildren().add(run_button);
-
         Label status = new Label(langData.get("main_status_idle"));
         status.setLayoutX(5);
         status.setLayoutY(550);
         //status.setFont(new Font(16));
         main_root.getChildren().add(status);
+
+        Button run_button = new Button(langData.get("main_output_button"));
+        run_button.setLayoutX(5);
+        run_button.setLayoutY(500);
+        run_button.setOnAction((event)->{
+            Thread.ofVirtual().start(()->{
+                String Text = null;
+                String cookieText = null;
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("./tools/cookie.txt")), StandardCharsets.UTF_8))){
+                    String str;
+                    StringBuilder sb = new StringBuilder();
+                    while ((str = reader.readLine()) != null) {
+                        sb.append(str).append("\n");
+                    }
+                    Text = sb.toString();
+                    cookieText = Function.DecrypterText(Text.substring(0, Text.length() - 1));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                String text = url_input.getText();
+                String[] split = text.split("\n");
+                if (split.length == 0 || text.isEmpty()){
+                    Platform.runLater(()->status.setText(langData.get("main_status_empty_error")));
+                    return;
+                }
+
+                // 仮組み立て
+                List<PlayListData> list = new ArrayList<>();
+                for (String url : split){
+                    url = url.split("\\?")[0];
+                    PlayListData playListData = new PlayListData();
+                    if (url.startsWith("https://nico.ms") || url.startsWith("http://nico.ms") || url.startsWith("https://www.nicovideo.jp/watch/") || url.startsWith("http://www.nicovideo.jp/watch/")){
+                        playListData.setTitle("動画");
+                        playListData.setVideoURL(url);
+                        list.add(playListData);
+                    } else if (Function.mylist_url.matcher(url).find()) {
+                        playListData.setTitle("プレイリスト");
+                        playListData.setVideoURL(url);
+                        list.add(playListData);
+                    }
+                }
+
+                // 動画情報取得
+                List<PlayListData> temp = new ArrayList<>();
+                String playlistTitle = null;
+                for (PlayListData data : list) {
+                    //System.out.println(data.getTitle() + " / " + data.getVideoURL());
+                    if (data.getTitle().equals("動画")){
+                        PlayListData tempData = new PlayListData();
+                        tempData.setTitle(Function.getVideoTitle(data.getVideoURL(), cookieText));
+                        if (site_select.getSelectionModel().getSelectedItem().equals("nicovrc.net")){
+                            tempData.setVideoURL("https://nicovrc.net/?url="+data.getVideoURL());
+                        } else if (site_select.getSelectionModel().getSelectedItem().equals("tool.suzumebachi.xyz")) {
+                            tempData.setVideoURL("https://testniconicomment.suzumebachi.xyz/nicovideo/"+data.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]);
+                        }
+                        temp.add(tempData);
+                        if (list.size() == 1){
+                            playlistTitle = tempData.getTitle();
+                        }
+                    } else {
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_mylist")));
+                        NicoNicoPlayList playList = Function.getPlayList(data.getVideoURL(), cookieText);
+                        if (list.size() == 1){
+                            playlistTitle = playList.getPlaylistTitle();
+                        }
+
+                        int i = 0;
+                        for (PlayListData d : playList.getPlaylistData()) {
+                            final String finalI = ""+i;
+                            Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_get_list").replaceAll("#now#", finalI).replaceAll("#max#", ""+playList.getPlaylistData().size())));
+                            if (site_select.getSelectionModel().getSelectedItem().equals("nicovrc.net")){
+                                d.setVideoURL("https://nicovrc.net/?url="+d.getVideoURL());
+                            } else if (site_select.getSelectionModel().getSelectedItem().equals("tool.suzumebachi.xyz")) {
+                                d.setVideoURL("https://testniconicomment.suzumebachi.xyz/nicovideo/"+d.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]);
+                            }
+                            temp.add(d);
+                            i++;
+                        }
+
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_get_success")));
+                    }
+                }
+
+                // JSON or Prefabへ
+                int min = 0;
+                final String maxText = ""+temp.size();
+
+                Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
+
+                if (output_combo.getSelectionModel().getSelectedItem().equals("iwaSync ("+langData.get("main_json")+")")){
+                    iwaSync json = new iwaSync();
+                    iwaSync_Tracks[] iwaSyncTracks = new iwaSync_Tracks[temp.size()];
+
+                    for (PlayListData data : temp) {
+                        int finalMin = min;
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#now#", ""+ finalMin).replaceAll("#max#", maxText)));
+                        iwaSyncTracks[min] = new iwaSync_Tracks();
+                        iwaSyncTracks[min].setMode(1);
+                        iwaSyncTracks[min].setTitle(data.getTitle());
+                        iwaSyncTracks[min].setUrl(data.getVideoURL());
+                        min++;
+                    }
+
+                    json.setTracks(iwaSyncTracks);
+
+                    String jsonFileName = "./NicoNicoJson.json";
+                    if (playlistTitle != null){
+                        jsonFileName = playlistTitle;
+                    }
+
+                    if (new File(jsonFileName).exists()){
+                        new File(jsonFileName).delete();
+                    }
+
+                    try (FileWriter file1 = new FileWriter(jsonFileName);
+                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+
+                        pw.print(Function.gson.toJson(json));
+                    } catch (Exception e){
+                        //e.printStackTrace();
+                    }
+
+                    Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
+                    return;
+                }
+
+
+            });
+        });
+        main_root.getChildren().add(run_button);
+
 
         main_stage.setScene(main_scene);
         main_stage.showAndWait();

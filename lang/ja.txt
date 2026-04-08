@@ -31,3 +31,4 @@ main_status_get_mylist_get_success=マイリスト 取得完了
 main_status_get_mylist_assembly=#player# に変換中
 main_status_get_success=#player# に変換完了！
 main_status_get_list=#player# に #now# / #max# 件 変換中
+main_status_empty_error=エラー: URLが指定されていません
