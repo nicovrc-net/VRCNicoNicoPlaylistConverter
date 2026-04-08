@@ -559,6 +559,7 @@ public class Main extends Application {
 
                 Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
 
+                String jsonText = "";
                 if (output_combo.getSelectionModel().getSelectedItem().equals("iwaSync ("+langData.get("main_json")+")")){
                     iwaSync json = new iwaSync();
                     iwaSync_Tracks[] iwaSyncTracks = new iwaSync_Tracks[temp.size()];
@@ -574,27 +575,27 @@ public class Main extends Application {
                     }
 
                     json.setTracks(iwaSyncTracks);
-
-                    String jsonFileName = "./NicoNicoJson.json";
-                    if (playlistTitle != null){
-                        jsonFileName = playlistTitle+".json";
-                    }
-
-                    if (new File(jsonFileName).exists()){
-                        new File(jsonFileName).delete();
-                    }
-
-                    try (FileWriter file1 = new FileWriter(jsonFileName);
-                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
-
-                        pw.print(Function.gson.toJson(json));
-                    } catch (Exception e){
-                        //e.printStackTrace();
-                    }
-
-                    Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
-                    return;
+                    jsonText = Function.gson.toJson(json);
                 }
+
+                String jsonFileName = "./NicoNicoJson.json";
+                if (playlistTitle != null){
+                    jsonFileName = playlistTitle+".json";
+                }
+
+                if (new File(jsonFileName).exists()){
+                    new File(jsonFileName).delete();
+                }
+
+                try (FileWriter file1 = new FileWriter(jsonFileName);
+                     PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+
+                    pw.print(jsonText);
+                } catch (Exception e){
+                    //e.printStackTrace();
+                }
+
+                Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
 
 
             });
