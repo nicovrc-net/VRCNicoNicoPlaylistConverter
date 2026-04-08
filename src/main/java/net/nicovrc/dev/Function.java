@@ -367,28 +367,63 @@ public class Function {
                 //System.out.println(jsonText);
                 //System.out.println("{"+jsonText+"}");
                 json = gson.fromJson("{"+jsonText+"}", JsonElement.class);
+
+                // このままだと最新20件しか取得しないので取り直す
+                if (json.getAsJsonObject().has("nvapi") && json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().has("body") && json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("body").getAsJsonObject().get("meta").getAsJsonObject().get("status").getAsInt() == 200){
+                    String uri = json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("path").getAsString();
+
+                    boolean isEnd = false;
+                    int page = 1;
+                    while (!isEnd){
+                        if (page == 1){
+                            playList.setPlaylistTitle(json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("body").getAsJsonObject().get("data").getAsJsonObject().get("mylist").getAsJsonObject().get("name").getAsString());
+                        }
+
+                        request = HttpRequest.newBuilder()
+                                .uri(new URI("https://nvapi.nicovideo.jp" + uri + "?pageSize=100&page="+page+"&sensitiveContents=mask"))
+                                .headers("User-Agent", Function.UserAgent)
+                                .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                                .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                                .headers("Cookie", cookieText)
+                                .headers("X-Frontend-Id", "6")
+                                .headers("X-Frontend-Version", "0")
+                                .headers("X-Niconico-Language", "ja-jp")
+                                .GET()
+                                .build();
+
+                        send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                        //System.out.println(send.body());
+                        jsonText = send.body();
+                        json = gson.fromJson(jsonText, JsonElement.class);
+
+                        //System.out.println("---");
+                        //System.out.println(json);
+                        //System.out.println("---");
+
+                        if (json == null || !json.getAsJsonObject().get("data").getAsJsonObject().get("mylist").getAsJsonObject().has("items") || json.getAsJsonObject().get("data").getAsJsonObject().get("mylist").getAsJsonObject().get("items").getAsJsonArray().isEmpty()){
+                            isEnd = true;
+                            page++;
+                            continue;
+                        }
+
+                        for (JsonElement element : json.getAsJsonObject().get("data").getAsJsonObject().get("mylist").getAsJsonObject().get("items").getAsJsonArray()) {
+                            PlayListData data = new PlayListData();
+                            data.setTitle(element.getAsJsonObject().get("video").getAsJsonObject().get("title").getAsString());
+                            data.setVideoURL("https://www.nicovideo.jp/watch/"+element.getAsJsonObject().get("watchId").getAsString());
+                            list.add(data);
+                        }
+
+                        page++;
+                    }
+
+                    //System.out.println(json);
+                }
             }
 
         } catch (Exception e){
             e.printStackTrace();
             playList.setPlaylistData(list);
             return playList;
-        }
-
-        if (json != null){
-            //System.out.println(json);
-            if (json.getAsJsonObject().has("nvapi") && json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().has("body") && json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("body").getAsJsonObject().get("meta").getAsJsonObject().get("status").getAsInt() == 200){
-                playList.setPlaylistTitle(json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("body").getAsJsonObject().get("data").getAsJsonObject().get("mylist").getAsJsonObject().get("name").getAsString());
-
-                for (JsonElement element : json.getAsJsonObject().get("nvapi").getAsJsonArray().get(0).getAsJsonObject().get("body").getAsJsonObject().get("data").getAsJsonObject().get("mylist").getAsJsonObject().get("items").getAsJsonArray()) {
-                    PlayListData data = new PlayListData();
-                    data.setTitle(element.getAsJsonObject().get("video").getAsJsonObject().get("title").getAsString());
-                    data.setVideoURL("https://www.nicovideo.jp/watch/"+element.getAsJsonObject().get("watchId").getAsString());
-                    list.add(data);
-                }
-
-            }
-
         }
 
         playList.setPlaylistData(list);
