@@ -1,2 +1,4 @@
 # VRCNicoNicoPlaylistConverter
-GUIで動くツールの予定
+https://nicovrc.booth.pm/items/7626577
+
+[更新履歴](CHANGELOG.md)
