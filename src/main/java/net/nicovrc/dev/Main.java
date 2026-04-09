@@ -440,7 +440,7 @@ public class Main extends Application {
         output_combo.setLayoutX(5);
         output_combo.setLayoutY(400);
         output_combo.getItems().addAll("",
-                "iwaSync ("+langData.get("main_json")+")",
+                "iwaSync ("+langData.get("main_json")+")"//,
         //        "KineL式(りら式) ("+langData.get("main_prefab")+")",
         //        "YamaPlayer ("+langData.get("main_json")+")",
         //        "VizVid ("+langData.get("main_json")+")"
