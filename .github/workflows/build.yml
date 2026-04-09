@@ -20,15 +20,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5.2.0
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3.5.0
+        uses: gradle/actions/setup-gradle@v6.1.0
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
@@ -43,13 +43,13 @@ jobs:
           path: ./build/libs/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
 
       - name: Upload BatchFile (for Windows)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: batch1
           path: ./run-batch/VRCNicoNicoPlaylist_start.bat
 
       - name: Upload BatchFile (for Linux)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: batch2
           path: ./run-batch/VRCNicoNicoPlaylist_start_linux.sh
