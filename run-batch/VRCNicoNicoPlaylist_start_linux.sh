@@ -6,7 +6,7 @@ if [ -d ./tools ]; then
 else
   mkdir ./tools
 
-  curl https://github.com/ip7z/7zip/releases/download/26.00/7z2600-linux-x64.tar.xz --output ./tools/7z2600-linux-x64.tar.xz
+  curl https://github.com/ip7z/7zip/releases/download/26.00/7z2600-linux-x64.tar.xz -L --output ./tools/7z2600-linux-x64.tar.xz
   tar -Jxvf ./tools/7z2600-linux-x64.tar.xz
   mkdir ./tools/7z2600
   mv ./7zz ./tools/7z2600
