@@ -174,7 +174,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./deb-package.deb
-          asset_name: nicovrc-v3.deb
+          asset_name: VRCNicoNicoPlaylistConverter.deb
           asset_content_type: application/vnd.debian.binary-package
 
       - name: Upload PKGBUILD File
