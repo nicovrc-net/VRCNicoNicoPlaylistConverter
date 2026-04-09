@@ -23,7 +23,7 @@ else
   chmod +x ./tools/jdk-21.0.2/bin/java
 
   curl https://download2.gluonhq.com/openjfx/21.0.10/openjfx-21.0.10_linux-x64_bin-sdk.zip --output ./tools/openjfx-21.0.10_linux-x64_bin-sdk.zip
-  ./tools/7z/7zz x ./tools/openjfx-21.0.10_linux-x64_bin-sdk.zip
+  ./tools/7z2600/7zz x ./tools/openjfx-21.0.10_linux-x64_bin-sdk.zip
   mv ./javafx-sdk-21.0.10 ./tools
 
   rm -fr /tools/7z2600
