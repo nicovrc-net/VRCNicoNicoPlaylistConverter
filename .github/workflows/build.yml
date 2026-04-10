@@ -151,7 +151,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - 初版
+            - 出力先にKinel式(りら式) prefab追加
           draft: false
           prerelease: true
 
