@@ -15,6 +15,7 @@ import net.nicovrc.dev.data.NicoNicoPlayList;
 import net.nicovrc.dev.data.PlayListData;
 import net.nicovrc.dev.json.iwaSync;
 import net.nicovrc.dev.json.iwaSync_Tracks;
+import net.nicovrc.dev.prefab.Kinel;
 
 import java.io.*;
 import java.net.URI;
@@ -440,8 +441,8 @@ public class Main extends Application {
         output_combo.setLayoutX(5);
         output_combo.setLayoutY(400);
         output_combo.getItems().addAll("",
-                "iwaSync ("+langData.get("main_json")+")"//,
-        //        "KineL式(りら式) ("+langData.get("main_prefab")+")",
+                "iwaSync ("+langData.get("main_json")+")",
+                "KineL式(りら式) ("+langData.get("main_prefab")+")"//,
         //        "YamaPlayer ("+langData.get("main_json")+")",
         //        "VizVid ("+langData.get("main_json")+")"
         );
@@ -576,11 +577,18 @@ public class Main extends Application {
 
                     json.setTracks(iwaSyncTracks);
                     jsonText = Function.gson.toJson(json);
+                } else if (output_combo.getSelectionModel().getSelectedItem().equals("KineL式(りら式) ("+langData.get("main_prefab")+")")){
+
+                    Kinel kinel = new Kinel();
+                    kinel.setUrls(temp);
+
+                    jsonText = kinel.getPrefab();
+
                 }
 
-                String jsonFileName = "./NicoNicoJson.json";
+                String jsonFileName = "./NicoNicoJson" + (output_combo.getSelectionModel().getSelectedItem().endsWith(langData.get("main_json") + ")") ? ".json" : ".prefab");
                 if (playlistTitle != null){
-                    jsonFileName = playlistTitle+".json";
+                    jsonFileName = playlistTitle + (output_combo.getSelectionModel().getSelectedItem().endsWith(langData.get("main_json") + ")") ? ".json" : ".prefab");
                 }
 
                 if (new File(jsonFileName).exists()){

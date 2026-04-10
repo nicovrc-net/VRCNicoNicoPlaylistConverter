@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 public class Function {
 
-    public static final String Version = "0.0.1-alpha.1";
+    public static final String Version = "0.1.0-alpha.1";
 
     public static final String UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0 VRCNicoNicoPlaylistConverter/"+Version;
     public static final String NicoNicoLoginUrl = "https://account.nicovideo.jp/login?site=niconico&next_url=%2F&sec=header_pc&cmnhd_ref=device%3Dpc%26site%3Dniconico%26pos%3Dheader_login%26page%3Dtop";
