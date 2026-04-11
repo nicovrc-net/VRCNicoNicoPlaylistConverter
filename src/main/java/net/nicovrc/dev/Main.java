@@ -442,6 +442,7 @@ public class Main extends Application {
         output_combo.setLayoutY(400);
         output_combo.getItems().addAll("",
                 "iwaSync ("+langData.get("main_json")+")",
+                "iwaSync ("+langData.get("main_prefab")+")",
                 "KineL式(りら式) ("+langData.get("main_prefab")+")"//,
         //        "YamaPlayer ("+langData.get("main_json")+")",
         //        "VizVid ("+langData.get("main_json")+")"
@@ -577,6 +578,13 @@ public class Main extends Application {
 
                     json.setTracks(iwaSyncTracks);
                     jsonText = Function.gson.toJson(json);
+                } else if (output_combo.getSelectionModel().getSelectedItem().equals("iwaSync ("+langData.get("main_prefab")+")")){
+
+                    net.nicovrc.dev.prefab.iwaSync iwaSync = new net.nicovrc.dev.prefab.iwaSync();
+                    iwaSync.setUrls(temp);
+
+                    jsonText = iwaSync.getPrefab();
+
                 } else if (output_combo.getSelectionModel().getSelectedItem().equals("KineL式(りら式) ("+langData.get("main_prefab")+")")){
 
                     Kinel kinel = new Kinel();
