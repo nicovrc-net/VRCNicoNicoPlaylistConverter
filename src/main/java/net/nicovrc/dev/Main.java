@@ -1,6 +1,7 @@
 package net.nicovrc.dev;
 
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.sun.security.auth.module.NTSystem;
 import javafx.application.Application;
@@ -27,6 +28,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,6 +104,127 @@ public class Main extends Application {
 
         final HashMap<String, String> langData = Function.getTextList(lang);
 
+        // フォント
+        System.out.println("[Info] Checking Fonts File");
+        file = new File("./fonts/");
+        if (!file.exists()){
+            file.mkdir();
+            try (HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2)
+                    .followRedirects(HttpClient.Redirect.ALWAYS)
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .build()) {
+
+                if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")){
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(new URI("https://fonts.google.com/download/list?family=Noto%20Sans%20JP%2CNoto%20Sans%20KR%2CNoto%20Sans%20SC%2CNoto%20Sans%20TC"))
+                            .headers("User-Agent", Function.UserAgent)
+                            .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                            .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                            .GET()
+                            .build();
+
+                    HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                    JsonElement json = Function.gson.fromJson(send.body(), JsonElement.class);
+
+                    JsonArray array = json.getAsJsonObject().get("manifest").getAsJsonObject().get("fileRefs").getAsJsonArray();
+
+                    for (JsonElement element : array.asList()) {
+                        String filename = element.getAsJsonObject().get("filename").getAsString();
+
+                        if  (filename.split("/")[filename.split("/").length - 1].endsWith("-Medium.ttf") && !new File("./fonts/"+filename.split("/")[filename.split("/").length - 1]).exists()){
+                            request = HttpRequest.newBuilder()
+                                    .uri(new URI(element.getAsJsonObject().get("url").getAsString()))
+                                    .headers("User-Agent", Function.UserAgent)
+                                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                                    .GET()
+                                    .build();
+
+                            HttpResponse<byte[]> send2 = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                            FileOutputStream stream = new FileOutputStream("./fonts/"+filename.split("/")[filename.split("/").length - 1]);
+                            stream.write(send2.body());
+                            stream.close();
+                            stream = null;
+                        }
+                    }
+                } else {
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(new URI("https://github.com/notofonts/noto-cjk/raw/main/Sans/Variable/OTC/NotoSansCJK-VF.ttf.ttc"))
+                            .headers("User-Agent", Function.UserAgent)
+                            .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                            .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                            .GET()
+                            .build();
+
+                    HttpResponse<byte[]> send = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                    FileOutputStream stream = new FileOutputStream("./fonts/NotoSansCJK-Regular.ttc");
+                    stream.write(send.body());
+                    stream.close();
+                    stream = null;
+                }
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("[Info] Setting Fonts File");
+        String fontLang = "JP";
+        try {
+            if (langData.get("lang_name").startsWith("한국어")){
+                fontLang = "KR";
+            } else if (langData.get("lang_name").startsWith("简体中文")){
+                fontLang = "SC";
+            } else if (langData.get("lang_name").startsWith("繁體中文")){
+                fontLang = "TC";
+            }
+        } catch (Exception e){
+            //e.printStackTrace();
+        }
+
+        Font tempFont1 = Font.getDefault();
+        try {
+            if (new File("./fonts/NotoSansCJK-Regular.ttc").exists()){
+                tempFont1 = Font.loadFont(new FileInputStream("./fonts/NotoSansCJK-Regular.ttc"), Font.getDefault().getSize());
+            } else if (new File("./fonts/NotoSansCJK-Regular.ttf").exists()){
+                tempFont1 = Font.loadFont(new FileInputStream("./fonts/NotoSansCJK-Regular.ttf"), Font.getDefault().getSize());
+            } else if (new File("./fonts/NotoSans"+fontLang+"-Medium.ttf").exists()){
+                tempFont1 = Font.loadFont(new FileInputStream("./fonts/NotoSans"+fontLang+"-Medium.ttf"), Font.getDefault().getSize());
+            }
+        } catch (Exception e){
+            //e.printStackTrace();
+        }
+
+        Font tempFont2 = new Font(24);
+        try {
+            if (new File("./fonts/NotoSansCJK-Regular.ttc").exists()){
+                tempFont2 = Font.loadFont(new FileInputStream("./fonts/NotoSansCJK-Regular.ttc"), 24);
+            } else if (new File("./fonts/NotoSansCJK-Regular.ttf").exists()){
+                tempFont2 = Font.loadFont(new FileInputStream("./fonts/NotoSansCJK-Regular.ttf"), 24);
+            } else if (new File("./fonts/NotoSans"+fontLang+"-Medium.ttf").exists()){
+                tempFont2 = Font.loadFont(new FileInputStream("./fonts/NotoSans"+fontLang+"-Medium.ttf"), 24);
+            }
+        } catch (Exception e){
+            //e.printStackTrace();
+        }
+
+        Font tempFont3 = new Font(16);
+        try {
+            if (new File("./fonts/NotoSansCJK-Regular.ttc").exists()){
+                tempFont3 = Font.loadFont(new FileInputStream("./fonts/NotoSansCJK-Regular.ttc"), 16);
+            } else if (new File("./fonts/NotoSansCJK-Regular.ttf").exists()){
+                tempFont3 = Font.loadFont(new FileInputStream("./fonts/NotoSansCJK-Regular.ttf"), 16);
+            } else if (new File("./fonts/NotoSans"+fontLang+"-Medium.ttf").exists()){
+                tempFont3 = Font.loadFont(new FileInputStream("./fonts/NotoSans"+fontLang+"-Medium.ttf"), 16);
+            }
+        } catch (Exception e){
+            //e.printStackTrace();
+        }
+        final Font DefaultFont = tempFont1;
+        final Font TitleFont = tempFont2;
+        final Font Size16Font = tempFont3;
+
         // Cookie情報
         file = new File("./tools/cookie.txt");
         System.out.println("[Info] "+langData.get("niconico_login_check"));
@@ -149,12 +272,13 @@ public class Main extends Application {
             Label login_label1 = new Label(langData.get("niconico_login_risk"));
             login_label1.setLayoutX(5);
             login_label1.setLayoutY(5);
-            login_label1.setFont(new Font(16));
+            login_label1.setFont(Size16Font);
             root.getChildren().add(login_label1);
 
             Label login_label2 = new Label(langData.get("niconico_mail_tel"));
             login_label2.setLayoutX(10);
             login_label2.setLayoutY(30);
+            login_label2.setFont(DefaultFont);
             root.getChildren().add(login_label2);
 
             TextField mail_field = new TextField();
@@ -163,11 +287,13 @@ public class Main extends Application {
             mail_field.setEditable(true);
             mail_field.setFocusTraversable(false);
             mail_field.setPrefWidth(350);
+            mail_field.setFont(DefaultFont);
             root.getChildren().add(mail_field);
 
             Label login_label3 = new Label(langData.get("niconico_password"));
             login_label3.setLayoutX(10);
             login_label3.setLayoutY(70);
+            login_label3.setFont(DefaultFont);
             root.getChildren().add(login_label3);
 
             TextField password_field = new TextField();
@@ -176,16 +302,19 @@ public class Main extends Application {
             password_field.setEditable(true);
             password_field.setFocusTraversable(false);
             password_field.setPrefWidth(350);
+            password_field.setFont(DefaultFont);
             root.getChildren().add(password_field);
 
             Label login_label4 = new Label(langData.get("niconico_login_fail"));
             login_label4.setLayoutX(10);
             login_label4.setLayoutY(150);
+            login_label4.setFont(DefaultFont);
 
             Label login_label5 = new Label(langData.get("niconico_2fa_code"));
             login_label5.setLayoutX(10);
             login_label5.setLayoutY(170);
             login_label5.setDisable(false);
+            login_label5.setFont(DefaultFont);
 
             TextField mfw_field = new TextField();
             mfw_field.setLayoutX(10);
@@ -193,11 +322,13 @@ public class Main extends Application {
             mfw_field.setEditable(true);
             mfw_field.setFocusTraversable(false);
             mfw_field.setPrefWidth(350);
+            mfw_field.setFont(DefaultFont);
 
             NicoNicoCookie[] cookie = new NicoNicoCookie[]{null};
             Button mfw_button = new Button(langData.get("niconico_2fa"));
             mfw_button.setLayoutX(10);
             mfw_button.setLayoutY(230);
+            mfw_button.setFont(DefaultFont);
             mfw_button.setOnAction(e -> {
                 Thread.ofVirtual().start(()->{
                     try {
@@ -214,6 +345,7 @@ public class Main extends Application {
             Button button = new Button(langData.get("niconico_login"));
             button.setLayoutX(10);
             button.setLayoutY(120);
+            button.setFont(DefaultFont);
             button.setOnAction(e -> {
                 Thread.ofVirtual().start(()->{
                     cookie[0] = Function.NicoNicoLogin(mail_field.getText(), password_field.getText());
@@ -349,6 +481,7 @@ public class Main extends Application {
             Button button = new Button(langData.get("update_close"));
             button.setLayoutX(300);
             button.setLayoutY(10);
+            button.setFont(DefaultFont);
             button.setOnAction(e -> {
                 sub_stage.close();
             });
@@ -357,28 +490,32 @@ public class Main extends Application {
             Label update_label1 = new Label(langData.get("update_notify"));
             update_label1.setLayoutX(5);
             update_label1.setLayoutY(5);
-            update_label1.setFont(new Font(16));
+            update_label1.setFont(Size16Font);
             root.getChildren().add(update_label1);
 
             Label update_label2 = new Label(langData.get("update_notify_update_found"));
             update_label2.setLayoutX(10);
             update_label2.setLayoutY(40);
+            update_label2.setFont(DefaultFont);
             root.getChildren().add(update_label2);
 
             Label update_label3 = new Label(langData.get("update_notify_now_version").replaceAll("#ver#", Function.Version));
             update_label3.setLayoutX(10);
             update_label3.setLayoutY(80);
+            update_label3.setFont(DefaultFont);
             root.getChildren().add(update_label3);
 
             Label update_label4 = new Label(langData.get("update_notify_new_version").replaceAll("#ver#", new_version));
             update_label4.setLayoutX(10);
             update_label4.setLayoutY(100);
+            update_label4.setFont(DefaultFont);
             root.getChildren().add(update_label4);
 
             if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
                 Button update_button = new Button(langData.get("update_notify_update"));
                 update_button.setLayoutX(10);
                 update_button.setLayoutY(120);
+                update_button.setFont(DefaultFont);
                 update_button.setOnAction(e -> {
                     try {
                         final Runtime runtime = Runtime.getRuntime();
@@ -420,6 +557,7 @@ public class Main extends Application {
         Label url_input_text = new Label(langData.get("main_mylist").replaceAll("\\\\n", "\n"));
         url_input_text.setLayoutX(5);
         url_input_text.setLayoutY(5);
+        url_input_text.setFont(DefaultFont);
         //url_input_text.setFont(new Font(16));
         main_root.getChildren().add(url_input_text);
 
@@ -429,12 +567,13 @@ public class Main extends Application {
         url_input.setLayoutY(65);
         url_input.setPrefSize(400, 300);
         url_input.setWrapText(false);
+        url_input.setFont(DefaultFont);
         main_root.getChildren().add(url_input);
 
         Label output_mode_text = new Label(langData.get("main_output"));
         output_mode_text.setLayoutX(5);
         output_mode_text.setLayoutY(380);
-        //output_mode_text.setFont(new Font(16));
+        output_mode_text.setFont(DefaultFont);
         main_root.getChildren().add(output_mode_text);
 
         ComboBox<String> output_combo = new ComboBox<>();
@@ -453,7 +592,7 @@ public class Main extends Application {
         Label site_select_text = new Label(langData.get("main_output_site"));
         site_select_text.setLayoutX(5);
         site_select_text.setLayoutY(440);
-        //site_select_text.setFont(new Font(16));
+        site_select_text.setFont(DefaultFont);
         main_root.getChildren().add(site_select_text);
 
         ComboBox<String> site_select = new ComboBox<>();
@@ -470,11 +609,13 @@ public class Main extends Application {
         status.setLayoutX(5);
         status.setLayoutY(550);
         //status.setFont(new Font(16));
+        status.setFont(DefaultFont);
         main_root.getChildren().add(status);
 
         Button run_button = new Button(langData.get("main_output_button"));
         run_button.setLayoutX(5);
         run_button.setLayoutY(500);
+        run_button.setFont(DefaultFont);
         run_button.setOnAction((event)->{
             Thread.ofVirtual().start(()->{
                 String Text = null;

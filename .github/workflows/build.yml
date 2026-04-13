@@ -112,7 +112,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         id: create_pkgbuild
         run: |
-          echo -e "pkgname=VRCNicoNicoPlayListConverter\npkgver=$(echo "${{ github.ref }}" | sed -E "s,^refs/tags/,,")\npkgrel=1\npkgdesc=\"This tool converts playlists from Nico Nico Douga into the playlist format used by VRC's video player.\"\narch=('x86_64')\nurl=\"https://nicovrc.net\"\nlicense=('MIT')\ndepends=('jdk21-openjdk')\nsource=( \"$pkgname::git+https://github.com/nicovrc-net/nico-proxy_forVRC.git#branch=master\")\nsha256sums=('SKIP')\n\nbuild() {\n    cd \"\$srcdir/\$pkgname\"\n    chmod +x gradlew\n    ./gradlew shadowJar\n}\n\npackage() {\n    cd \"\$srcdir/\$pkgname\"\n    \n    echo -e \"#!/bin/bash\\njava -Duser.timezone=Asia/Tokyo -Xms4G -Xmx4G -jar /usr/share/$pkgname/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar\" > ./temp-start.sh\n\n    install -Dm644 \"build/libs/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar\" \"\$pkgdir/usr/share/\$pkgname/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar"\n    install -Dm755 "./temp-start.sh" "\$pkgdir/usr/bin/\$pkgname"\n\n    find "\$pkgdir/usr/share/\$pkgname\" -type f -exec file {} \; | grep ELF | cut -d: -f1 | while read -r elf; do\n        strip --strip-all \"\$elf\" || true\n    done\n\n}" > ./PKGBUILD
+          echo -e "pkgname=VRCNicoNicoPlayListConverter\npkgver=$(echo "${{ github.ref }}" | sed -E "s,^refs/tags/,,")\npkgrel=1\npkgdesc=\"This tool converts playlists from Nico Nico Douga into the playlist format used by VRC's video player.\"\narch=('x86_64')\nurl=\"https://nicovrc.net\"\nlicense=('MIT')\ndepends=('jdk21-openjdk')\nsource=( \"$pkgname::git+https://github.com/nicovrc-net/nico-proxy_forVRC.git#branch=master\")\nsha256sums=('SKIP')\n\nbuild() {\n    cd \"\$srcdir/\$pkgname\"\n    chmod +x gradlew\n    ./gradlew shadowJar\n}\n\npackage() {\n    cd \"\$srcdir/\$pkgname\"\n    \n    echo -e \"#!/bin/bash\\ncd /usr/share/\$pkgname/\\njava -Duser.timezone=Asia/Tokyo -Xms4G -Xmx4G -jar /usr/share/\$pkgname/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar\" > ./temp-start.sh\nln -s /usr/share/fonts/noto-cjk/ "\$pkgdir/usr/share/\$pkgname/fonts"\n    install -Dm644 \"build/libs/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar\" \"\$pkgdir/usr/share/\$pkgname/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar"\n    install -Dm755 "./temp-start.sh" "\$pkgdir/usr/bin/\$pkgname"\n\n    find "\$pkgdir/usr/share/\$pkgname\" -type f -exec file {} \; | grep ELF | cut -d: -f1 | while read -r elf; do\n        strip --strip-all \"\$elf\" || true\n    done\n\n}" > ./PKGBUILD
         shell: bash
 
       - name: Create deb Package
@@ -124,17 +124,19 @@ jobs:
           mkdir -p ./deb-package
           mkdir -p ./deb-package/usr/share/VRCNicoNicoPlayListConverter
           mkdir -p ./deb-package/usr/bin
+          mkdir -p ./deb-package/usr/share/VRCNicoNicoPlayListConverter/fonts
+          ln -s /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc ./deb-package/usr/share/VRCNicoNicoPlayListConverter/fonts/NotoSansCJK-Regular.ttc
           
           mkdir -p ./deb-package/DEBIAN
           
-          echo -e "Package: VRCNicoNicoPlayListConverter\nVersion: $INPUT_VERSION-1\nArchitecture: amd64\nMaintainer: Chino Nanami <tino_nanami@7mi.site>\nDescription: This tool converts playlists from Nico Nico Douga into the playlist format used by VRC's video player.\nDepends: openjdk-21-jdk " > ./deb-package/DEBIAN/control
+          echo -e "Package: VRCNicoNicoPlayListConverter\nVersion: $INPUT_VERSION-1\nArchitecture: amd64\nMaintainer: Chino Nanami <tino_nanami@7mi.site>\nDescription: This tool converts playlists from Nico Nico Douga into the playlist format used by VRC's video player.\nDepends: openjdk-21-jdk, fonts-noto-cjk " > ./deb-package/DEBIAN/control
           
           echo -e "#!/bin/bash\nif [ -x /usr/bin/VRCNicoNicoPlayListConverter ]; then\nelse\n  rm /usr/share/VRCNicoNicoPlayListConverter -fr\n  rm /usr/bin/VRCNicoNicoPlayListConverter" > ./deb-package/DEBIAN/postrm
           chmod +x ./deb-package/DEBIAN/postrm
           
           cp ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar ./deb-package/usr/share/VRCNicoNicoPlayListConverter
           
-          echo -e "#!/bin/bash\njava -Duser.timezone=Asia/Tokyo -Xms4G -Xmx4G -jar /usr/share/VRCNicoNicoPlayListConverter/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar" > ./deb-package/usr/bin/VRCNicoNicoPlayListConverter
+          echo -e "#!/bin/bash\ncd /usr/share/VRCNicoNicoPlayListConverter/\njava -Duser.timezone=Asia/Tokyo -Xms4G -Xmx4G -jar /usr/share/VRCNicoNicoPlayListConverter/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar" > ./deb-package/usr/bin/VRCNicoNicoPlayListConverter
           chmod +x ./deb-package/usr/bin/VRCNicoNicoPlayListConverter
           
           fakeroot dpkg-deb --build $WORK ./deb-package
@@ -151,6 +153,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
+            - フォント変更
             - 出力先にiwaSync prefab追加
           draft: false
           prerelease: true

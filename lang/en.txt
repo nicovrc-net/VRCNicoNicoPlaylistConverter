@@ -1,3 +1,4 @@
+lang_name="English"
 niconico_login_check=Check niconico login information
 niconico_login_check_fail=Login information not found. Displaying the login screen.
 niconico_login_risk=※Please proceed at your own risk.

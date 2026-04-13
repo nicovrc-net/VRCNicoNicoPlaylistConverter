@@ -1,3 +1,4 @@
+lang_name="한국어"
 niconico_login_check=Check niconico login information
 niconico_login_check_fail=Login information not found. Displaying the login screen.
 niconico_login_risk=※무슨 일이 있어도 본인 책임으로 진행해 주세요.

@@ -1,3 +1,4 @@
+lang_name="繁體中文"
 niconico_login_check=檢查 niconico 登入資訊
 niconico_login_check_fail=未找到登入資訊。將顯示登入畫面。
 niconico_login_risk=※無論發生什麼請自行承擔責任。

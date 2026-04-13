@@ -1,3 +1,4 @@
+lang_name="日本語"
 niconico_login_check=ニコニコ動画のログイン情報確認
 niconico_login_check_fail=ログイン情報が見つかりませんでした。 ログイン画面を表示します。
 niconico_login_risk=※何があっても自己責任でお願いします。

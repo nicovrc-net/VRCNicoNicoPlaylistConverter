@@ -1,3 +1,4 @@
+lang_name="简体中文"
 niconico_login_check=检查 niconico 登录信息
 niconico_login_check_fail=未找到登录信息。将显示登录界面。
 niconico_login_risk=※无论发生什么请自行承担责任。
