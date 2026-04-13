@@ -105,7 +105,7 @@ public class Main extends Application {
         final HashMap<String, String> langData = Function.getTextList(lang);
 
         // フォント
-        System.out.println("[Info] Checking Fonts File");
+        //System.out.println("[Info] Checking Fonts File");
         file = new File("./fonts/");
         if (!file.exists()){
             file.mkdir();
@@ -125,27 +125,30 @@ public class Main extends Application {
                             .build();
 
                     HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-                    JsonElement json = Function.gson.fromJson(send.body(), JsonElement.class);
+                    if (send.statusCode() > 200 && send.statusCode() <= 399){
+                        JsonElement json = Function.gson.fromJson(send.body(), JsonElement.class);
+                        JsonArray array = json.getAsJsonObject().get("manifest").getAsJsonObject().get("fileRefs").getAsJsonArray();
 
-                    JsonArray array = json.getAsJsonObject().get("manifest").getAsJsonObject().get("fileRefs").getAsJsonArray();
+                        for (JsonElement element : array.asList()) {
+                            String filename = element.getAsJsonObject().get("filename").getAsString();
 
-                    for (JsonElement element : array.asList()) {
-                        String filename = element.getAsJsonObject().get("filename").getAsString();
+                            if  (filename.split("/")[filename.split("/").length - 1].endsWith("-Medium.ttf") && !new File("./fonts/"+filename.split("/")[filename.split("/").length - 1]).exists()){
+                                request = HttpRequest.newBuilder()
+                                        .uri(new URI(element.getAsJsonObject().get("url").getAsString()))
+                                        .headers("User-Agent", Function.UserAgent)
+                                        .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                                        .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                                        .GET()
+                                        .build();
 
-                        if  (filename.split("/")[filename.split("/").length - 1].endsWith("-Medium.ttf") && !new File("./fonts/"+filename.split("/")[filename.split("/").length - 1]).exists()){
-                            request = HttpRequest.newBuilder()
-                                    .uri(new URI(element.getAsJsonObject().get("url").getAsString()))
-                                    .headers("User-Agent", Function.UserAgent)
-                                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
-                                    .GET()
-                                    .build();
-
-                            HttpResponse<byte[]> send2 = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-                            FileOutputStream stream = new FileOutputStream("./fonts/"+filename.split("/")[filename.split("/").length - 1]);
-                            stream.write(send2.body());
-                            stream.close();
-                            stream = null;
+                                HttpResponse<byte[]> send2 = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                                if (send2.statusCode() > 200 && send2.statusCode() <= 399){
+                                    FileOutputStream stream = new FileOutputStream("./fonts/"+filename.split("/")[filename.split("/").length - 1]);
+                                    stream.write(send2.body());
+                                    stream.close();
+                                    stream = null;
+                                }
+                            }
                         }
                     }
                 } else {
@@ -158,10 +161,12 @@ public class Main extends Application {
                             .build();
 
                     HttpResponse<byte[]> send = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-                    FileOutputStream stream = new FileOutputStream("./fonts/NotoSansCJK-Regular.ttc");
-                    stream.write(send.body());
-                    stream.close();
-                    stream = null;
+                    if (send.statusCode() > 200 && send.statusCode() <= 399){
+                        FileOutputStream stream = new FileOutputStream("./fonts/NotoSansCJK-Regular.ttc");
+                        stream.write(send.body());
+                        stream.close();
+                        stream = null;
+                    }
                 }
 
             } catch (Exception e){
@@ -169,7 +174,7 @@ public class Main extends Application {
             }
         }
 
-        System.out.println("[Info] Setting Fonts File");
+        //System.out.println("[Info] Setting Fonts File");
         String fontLang = "JP";
         try {
             if (langData.get("lang_name").startsWith("한국어")){
