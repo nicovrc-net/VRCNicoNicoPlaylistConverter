@@ -14,8 +14,7 @@ import javafx.stage.Stage;
 import net.nicovrc.dev.data.NicoNicoCookie;
 import net.nicovrc.dev.data.NicoNicoPlayList;
 import net.nicovrc.dev.data.PlayListData;
-import net.nicovrc.dev.json.iwaSync;
-import net.nicovrc.dev.json.iwaSync_Tracks;
+import net.nicovrc.dev.json.*;
 import net.nicovrc.dev.prefab.Kinel;
 
 import java.io.*;
@@ -587,8 +586,8 @@ public class Main extends Application {
         output_combo.getItems().addAll("",
                 "iwaSync ("+langData.get("main_json")+")",
                 "iwaSync ("+langData.get("main_prefab")+")",
-                "KineL式(りら式) ("+langData.get("main_prefab")+")"//,
-        //        "YamaPlayer ("+langData.get("main_json")+")",
+                "KineL式(りら式) ("+langData.get("main_prefab")+")",
+                "YamaPlayer ("+langData.get("main_json")+")"//,
         //        "VizVid ("+langData.get("main_json")+")"
         );
         output_combo.setPrefWidth(300);
@@ -737,6 +736,29 @@ public class Main extends Application {
                     kinel.setUrls(temp);
 
                     jsonText = kinel.getPrefab();
+
+                } else if (output_combo.getSelectionModel().getSelectedItem().equals("YamaPlayer ("+langData.get("main_json")+")")){
+
+                    YamaPlayer yamaPlayer = new YamaPlayer();
+                    YamaPlayer_playlists[] playlists = {new YamaPlayer_playlists()};
+                    if (playlistTitle != null){
+                        playlists[0].setName(playlistTitle);
+                    }
+                    playlists[0].setTracks(new YamaPlayer_Tracks[temp.size()]);
+
+                    for (PlayListData data : temp) {
+                        int finalMin = min;
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#now#", ""+ finalMin).replaceAll("#max#", maxText)));
+                        playlists[0].getTracks()[min] = new YamaPlayer_Tracks();
+                        playlists[0].getTracks()[min].setMode(1);
+                        playlists[0].getTracks()[min].setTitle(data.getTitle());
+                        playlists[0].getTracks()[min].setUrl(data.getVideoURL());
+                        min++;
+                    }
+
+                    yamaPlayer.setPlaylists(playlists);
+
+                    jsonText = Function.gson.toJson(yamaPlayer);
 
                 }
 
