@@ -590,8 +590,8 @@ public class Main extends Application {
                 "KineL式(りら式) ("+langData.get("main_prefab")+")",
                 "YamaPlayer ("+langData.get("main_json")+")",
                 "YamaPlayer (v1,"+langData.get("main_prefab")+")",
-                "YamaPlayer (v2,"+langData.get("main_prefab")+")"//,
-        //        "VizVid ("+langData.get("main_json")+")"
+                "YamaPlayer (v2,"+langData.get("main_prefab")+")",
+                "VizVid ("+langData.get("main_json")+")"
         );
         output_combo.setPrefWidth(300);
         main_root.getChildren().add(output_combo);
@@ -720,7 +720,7 @@ public class Main extends Application {
 
                     for (PlayListData data : temp) {
                         int finalMin = min;
-                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#now#", ""+ finalMin).replaceAll("#max#", maxText)));
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalMin).replaceAll("#max#", maxText)));
                         iwaSyncTracks[min] = new iwaSync_Tracks();
                         iwaSyncTracks[min].setMode(1);
                         iwaSyncTracks[min].setTitle(data.getTitle());
@@ -755,7 +755,7 @@ public class Main extends Application {
 
                     for (PlayListData data : temp) {
                         int finalMin = min;
-                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#now#", ""+ finalMin).replaceAll("#max#", maxText)));
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalMin).replaceAll("#max#", maxText)));
                         playlists[0].getTracks()[min] = new YamaPlayer_Tracks();
                         playlists[0].getTracks()[min].setMode(1);
                         playlists[0].getTracks()[min].setTitle(data.getTitle());
@@ -790,6 +790,31 @@ public class Main extends Application {
                     }
 
                     jsonText = yamaPlayer1.getPrefab();
+
+                } else if (output_combo.getSelectionModel().getSelectedItem().equals("VizVid ("+langData.get("main_json")+")")){
+
+                    VizVid vizVid = new VizVid();
+                    if (playlistTitle != null){
+                        vizVid.setTitle(playlistTitle);
+                    }
+                    VizVid_entries[] entries = new VizVid_entries[temp.size()];
+
+                    int i = 0;
+                    for (PlayListData playListData : temp) {
+                        int finalI = i;
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalI).replaceAll("#max#", maxText)));
+
+                        entries[i] = new VizVid_entries();
+                        entries[i].setTitle(playListData.getTitle());
+                        entries[i].setUrl(playListData.getVideoURL());
+                        entries[i].setUrlForQuest(playListData.getVideoURL());
+                        entries[i].setPlayerIndex(0);
+
+                        i++;
+                    }
+
+                    vizVid.setEntries(entries);
+                    jsonText = Function.gson.toJson(vizVid);
 
                 }
 
