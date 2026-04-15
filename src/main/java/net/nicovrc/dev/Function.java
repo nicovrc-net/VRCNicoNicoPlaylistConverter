@@ -31,7 +31,8 @@ public class Function {
     public static final String NicoNicoLoginUrl = "https://account.nicovideo.jp/login?site=niconico&next_url=%2F&sec=header_pc&cmnhd_ref=device%3Dpc%26site%3Dniconico%26pos%3Dheader_login%26page%3Dtop";
     public static final String LoginAfterUrl = "https://www.nicovideo.jp/";
 
-    public static final Pattern mylist_url = Pattern.compile("https://www\\.nicovideo\\.jp/user/(\\d+)/mylist/(\\d+)");
+    public static final Pattern mylist_url1 = Pattern.compile("https://www\\.nicovideo\\.jp/user/(\\d+)/mylist/(\\d+)");
+    public static final Pattern mylist_url2 = Pattern.compile("https://www\\.nicovideo\\.jp/mylist/(\\d+)");
     public static final Pattern matcher_Json = Pattern.compile("<meta name=\"server-response\" content=\"\\{(.+)}\" />");
     public static final Pattern matcher_JsonNico = Pattern.compile("<script id=\"embedded-data\" data-props=\"(.+)\"></script><script id=\"");
 

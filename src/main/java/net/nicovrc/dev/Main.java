@@ -16,6 +16,7 @@ import net.nicovrc.dev.data.NicoNicoPlayList;
 import net.nicovrc.dev.data.PlayListData;
 import net.nicovrc.dev.json.*;
 import net.nicovrc.dev.prefab.Kinel;
+import net.nicovrc.dev.prefab.YamaPlayer1;
 
 import java.io.*;
 import java.net.URI;
@@ -587,7 +588,9 @@ public class Main extends Application {
                 "iwaSync ("+langData.get("main_json")+")",
                 "iwaSync ("+langData.get("main_prefab")+")",
                 "KineL式(りら式) ("+langData.get("main_prefab")+")",
-                "YamaPlayer ("+langData.get("main_json")+")"//,
+                "YamaPlayer ("+langData.get("main_json")+")",
+                "YamaPlayer (v1,"+langData.get("main_prefab")+")",
+                "YamaPlayer (v2,"+langData.get("main_prefab")+")"//,
         //        "VizVid ("+langData.get("main_json")+")"
         );
         output_combo.setPrefWidth(300);
@@ -652,7 +655,11 @@ public class Main extends Application {
                         playListData.setTitle("動画");
                         playListData.setVideoURL(url);
                         list.add(playListData);
-                    } else if (Function.mylist_url.matcher(url).find()) {
+                    } else if (Function.mylist_url1.matcher(url).find()) {
+                        playListData.setTitle("プレイリスト");
+                        playListData.setVideoURL(url);
+                        list.add(playListData);
+                    } else if (Function.mylist_url2.matcher(url).find()) {
                         playListData.setTitle("プレイリスト");
                         playListData.setVideoURL(url);
                         list.add(playListData);
@@ -759,6 +766,30 @@ public class Main extends Application {
                     yamaPlayer.setPlaylists(playlists);
 
                     jsonText = Function.gson.toJson(yamaPlayer);
+
+                } else if (output_combo.getSelectionModel().getSelectedItem().equals("YamaPlayer (v1,"+langData.get("main_prefab")+")")){
+
+                    YamaPlayer1 yamaPlayer1 = new YamaPlayer1();
+                    yamaPlayer1.setUrls(temp);
+                    if (playlistTitle != null){
+                        yamaPlayer1.setPlaylistName(playlistTitle);
+                    } else {
+                        yamaPlayer1.setPlaylistName("NicoNicoPlaylist");
+                    }
+
+                    jsonText = yamaPlayer1.getPrefab();
+
+                } else if (output_combo.getSelectionModel().getSelectedItem().equals("YamaPlayer (v2,"+langData.get("main_prefab")+")")){
+
+                    YamaPlayer1 yamaPlayer1 = new YamaPlayer1();
+                    yamaPlayer1.setUrls(temp);
+                    if (playlistTitle != null){
+                        yamaPlayer1.setPlaylistName(playlistTitle);
+                    } else {
+                        yamaPlayer1.setPlaylistName("NicoNicoPlaylist");
+                    }
+
+                    jsonText = yamaPlayer1.getPrefab();
 
                 }
 
