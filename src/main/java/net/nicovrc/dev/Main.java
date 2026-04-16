@@ -23,12 +23,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -591,7 +590,8 @@ public class Main extends Application {
                 "YamaPlayer ("+langData.get("main_json")+")",
                 "YamaPlayer (v1,"+langData.get("main_prefab")+")",
                 "YamaPlayer (v2,"+langData.get("main_prefab")+")",
-                "VizVid ("+langData.get("main_json")+")"
+                "VizVid ("+langData.get("main_json")+")",
+                "あやぷれいやー2 ("+langData.get("main_json")+")"
         );
         output_combo.setPrefWidth(300);
         main_root.getChildren().add(output_combo);
@@ -714,6 +714,8 @@ public class Main extends Application {
                 Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
 
                 String jsonText = "";
+                String jsonBackupText = null;
+
                 if (output_combo.getSelectionModel().getSelectedItem().equals("iwaSync ("+langData.get("main_json")+")")){
                     iwaSync json = new iwaSync();
                     iwaSync_Tracks[] iwaSyncTracks = new iwaSync_Tracks[temp.size()];
@@ -816,6 +818,67 @@ public class Main extends Application {
                     vizVid.setEntries(entries);
                     jsonText = Function.gson.toJson(vizVid);
 
+                } else if (output_combo.getSelectionModel().getSelectedItem().equals("あやぷれいやー2 ("+langData.get("main_json")+")")){
+
+                    ayaplayer ayaplayer = new ayaplayer();
+                    ayaplayer_backup backup = new ayaplayer_backup();
+
+                    ayaplayer.setPart(0);
+                    ayaplayer.setTotal_parts(1);
+                    ayaplayer.setCount(temp.size() + 1);
+                    ayaplayer.setTitles(new String[temp.size() + 1]);
+                    ayaplayer.setUrls(new String[temp.size()]);
+
+                    ayaplayer.getTitles()[0] = "Root";
+
+                    int[] temp1 = new int[temp.size() + 1];
+                    int[] temp2 = new int[temp.size() + 1];
+                    int[] temp3 = new int[temp.size() + 1];
+
+                    temp1[0] = 1;
+                    temp2[0] = -1;
+                    temp3[0] = -1;
+
+                    int i = 1;
+                    for (PlayListData playListData : temp) {
+                        int finalI = i;
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalI).replaceAll("#max#", maxText)));
+
+                        ayaplayer.getTitles()[i] = playListData.getTitle();
+                        ayaplayer.getUrls()[i - 1] = playListData.getVideoURL();
+
+                        temp1[i] = 0;
+                        temp2[i] = 0;
+                        temp3[i] = i - 1;
+
+                        i++;
+                    }
+
+                    ayaplayer.setTypes_base64(intArrayToBase64(temp1));
+                    ayaplayer.setParents_base64(intArrayToBase64(temp2));
+                    ayaplayer.setTargets_base64(intArrayToBase64(temp3));
+
+
+                    jsonText = Function.gson.toJson(ayaplayer);
+
+                    backup.setTitle("Root");
+                    backup.setType("folder");
+                    backup.setChildren(new ayaplayer_backup_children[temp.size()]);
+                    i = 0;
+                    for (PlayListData playListData : temp) {
+                        int finalI = i;
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalI).replaceAll("#max#", maxText)));
+
+                        backup.getChildren()[i] = new ayaplayer_backup_children();
+                        backup.getChildren()[i].setTitle(playListData.getTitle());
+                        backup.getChildren()[i].setType("video");
+                        backup.getChildren()[i].setUrl(playListData.getVideoURL());
+
+                        i++;
+                    }
+
+                    jsonBackupText = Function.gson.toJson(backup);
+
                 }
 
                 String jsonFileName = "./NicoNicoJson" + (output_combo.getSelectionModel().getSelectedItem().endsWith(langData.get("main_json") + ")") ? ".json" : ".prefab");
@@ -835,6 +898,16 @@ public class Main extends Application {
                     //e.printStackTrace();
                 }
 
+                if (jsonBackupText != null){
+                    try (FileWriter file1 = new FileWriter(jsonFileName.replaceAll("\\.json", "_backup.json"));
+                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+
+                        pw.print(jsonBackupText);
+                    } catch (Exception e){
+                        //e.printStackTrace();
+                    }
+                }
+
                 Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
 
 
@@ -846,5 +919,14 @@ public class Main extends Application {
         main_stage.setScene(main_scene);
         main_stage.showAndWait();
 
+    }
+
+    private static String intArrayToBase64(int[] ints) {
+        if (ints == null || ints.length == 0) return "";
+        ByteBuffer buf = ByteBuffer.allocate(ints.length * Integer.BYTES)
+                .order(ByteOrder.LITTLE_ENDIAN);
+        for (int v : ints) buf.putInt(v);
+        byte[] bytes = buf.array();
+        return Base64.getEncoder().encodeToString(bytes);
     }
 }

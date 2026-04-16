@@ -1,4 +1,6 @@
 # 更新履歴
+## 0.2.1-beta.1 (2026/4/16)
+- あやぷれいやー2 json 追加
 ## 0.2.0-beta.1 (2026/4/15)
 - 出力先にiwaSync prefab 追加
 - 出力先にiwaSync prefab 追加

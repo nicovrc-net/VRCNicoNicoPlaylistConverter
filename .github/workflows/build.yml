@@ -153,10 +153,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - フォント変更
-            - 出力先にiwaSync prefab 追加
-            - 出力先にYamaPlayer (prefab(v1/v2) / json) 追加
-            - 出力先にVizVid (json 追加
+            - 出力先にあやぷれいやー2 (json) 追加
 
           draft: false
           prerelease: true
