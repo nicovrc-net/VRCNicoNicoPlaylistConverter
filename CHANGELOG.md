@@ -2,7 +2,7 @@
 ## 0.3.0-beta.1 (2026/4/xx)
 - prefab、jsonファイルの出力先を指定できるように
 ## 0.2.1-beta.1 (2026/4/16)
-- あやぷれいやー2 json 追加
+- 出力先にあやぷれいやー2 json 追加
 ## 0.2.0-beta.1 (2026/4/15)
 - 出力先にiwaSync prefab 追加
 - 出力先にiwaSync prefab 追加
