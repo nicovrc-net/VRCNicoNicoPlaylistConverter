@@ -33,3 +33,6 @@ main_status_get_mylist_assembly=#player#로 변환 중
 main_status_get_success=#player#로 변환 완료!
 main_status_get_list=#player#로 #now# / #max# 항목을 변환 중
 main_status_empty_error=오류: URL이 지정되지 않았습니다
+main_sliden=이미지 파일의 경로를 입력하세요\n(전체 경로와 상대 경로 모두 가능합니다)
+main_status_sliden_error=오류: 이미지 파일이 지정되지 않았습니다(지원 확장자: .jpg, .jpeg, .png, .gif, .webp)
+main_status_sliden_error_ffmpeg=오류: ffmpeg이 없습니다

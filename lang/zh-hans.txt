@@ -33,3 +33,6 @@ main_status_get_mylist_assembly=正在转换为 #player#
 main_status_get_success=已转换为 #player#！
 main_status_get_list=正在将 #now# / #max# 项转换为 #player#
 main_status_empty_error=错误：未指定 URL
+main_sliden=请输入图像文件的路径\n（支持绝对路径或相对路径）
+main_status_sliden_error=错误：未指定图像文件（支持的扩展名：.jpg、.jpeg、.png、.gif、.webp）
+main_status_sliden_error_ffmpeg=错误：缺少 ffmpeg

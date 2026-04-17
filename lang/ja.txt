@@ -33,3 +33,6 @@ main_status_get_mylist_assembly=#player# に変換中
 main_status_get_success=#player# に変換完了！
 main_status_get_list=#player# に #now# / #max# 件 変換中
 main_status_empty_error=エラー: URLが指定されていません
+main_sliden=画像ファイルのパスを入力してください\n(フルパス、相対パスどちらでも可)
+main_status_sliden_error=エラー: 画像ファイルが指定されていません(対応拡張子: .jpg、.jpeg、.png、.gif、.webp)
+main_status_sliden_error_ffmpeg=エラー: ffmpegがありません

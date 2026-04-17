@@ -33,3 +33,6 @@ main_status_get_mylist_assembly=Converting to #player#
 main_status_get_success=Conversion to #player# complete!
 main_status_get_list=Converting #now# / #max# items to #player#
 main_status_empty_error=Error: No URL specified
+main_sliden=Please enter the path to the image file\n(Both full paths and relative paths are acceptable)
+main_status_sliden_error=Error: No image file specified (supported extensions: .jpg, .jpeg, .png, .gif, .webp)
+main_status_sliden_error_ffmpeg=Error: ffmpeg is missing

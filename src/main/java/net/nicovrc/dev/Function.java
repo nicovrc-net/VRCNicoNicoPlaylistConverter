@@ -36,6 +36,9 @@ public class Function {
     public static final Pattern matcher_Json = Pattern.compile("<meta name=\"server-response\" content=\"\\{(.+)}\" />");
     public static final Pattern matcher_JsonNico = Pattern.compile("<script id=\"embedded-data\" data-props=\"(.+)\"></script><script id=\"");
 
+    public static final Pattern matcher_imagefile = Pattern.compile("(\\.jpg|\\.jpeg|\\.png|\\.webp|\\.gif)");
+    public static final Pattern matcher_ffmpeg = Pattern.compile("/(.+)/ffmpeg");
+
     private static Pattern cookie_pattern1 = Pattern.compile("(.+)=(.+); Max-Age=");
     private static Pattern cookie_pattern2 = Pattern.compile("(.+)=(.+); expires=");
     private static Pattern cookie_pattern3 = Pattern.compile("(.+)=(.+); Path=");
