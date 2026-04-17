@@ -154,7 +154,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - 出力先にあやぷれいやー2 json 追加
+            - 出力先にSliden 追加
 
           draft: false
           prerelease: true
