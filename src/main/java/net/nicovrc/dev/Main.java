@@ -74,6 +74,7 @@ public class Main extends Application {
                     }
                     Function.FileWrite_text("./lang/ja.txt", send.body());
                     Function.FileWrite_text("./lang/default.txt", send.body());
+                    lang = "ja";
                 } catch (Exception e){
                     e.printStackTrace();
                 }
@@ -326,6 +327,11 @@ public class Main extends Application {
                             root.getChildren().add(mfw_button);
                         });
                     }
+
+                    if (cookie[0].isLogin()){
+                        Platform.runLater(sub_stage::close);
+                    }
+
                 });
             });
             root.getChildren().add(button);

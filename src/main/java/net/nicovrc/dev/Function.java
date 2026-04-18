@@ -119,12 +119,22 @@ public class Function {
                 }
             });*/
 
-            if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().equals(LoginAfterUrl)){
+            if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().startsWith(LoginAfterUrl)){
                 for (String s : map.get("set-cookie")) {
-                    Matcher matcher = cookie_pattern2.matcher(s);
-                    if (matcher.find() && matcher.group(1).equals("user_session") && !matcher.group(2).equals("deleted")){
+                    Matcher matcher1 = cookie_pattern1.matcher(s);
+                    Matcher matcher2 = cookie_pattern2.matcher(s);
+                    //System.out.println(s);
+                    if (matcher1.find() && matcher1.group(1).equals("user_session") && !matcher1.group(2).equals("deleted")){
+                        System.out.println(matcher1.group(1));
                         cookie.setLogin(true);
-                        cookie.setUser_session(matcher.group(2));
+                        cookie.setUser_session(matcher1.group(2));
+
+                        break;
+                    }
+                    if (matcher2.find() && matcher2.group(1).equals("user_session") && !matcher2.group(2).equals("deleted")){
+                        //System.out.println(matcher.group(1));
+                        cookie.setLogin(true);
+                        cookie.setUser_session(matcher2.group(2));
 
                         break;
                     }
