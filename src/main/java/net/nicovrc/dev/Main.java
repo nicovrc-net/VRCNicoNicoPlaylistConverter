@@ -3,7 +3,6 @@ package net.nicovrc.dev;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.sun.security.auth.module.NTSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -92,7 +91,7 @@ public class Main extends Application {
             file.mkdir();
             try (HttpClient client = HttpClient.newBuilder()
                     .version(HttpClient.Version.HTTP_2)
-                    .followRedirects(HttpClient.Redirect.ALWAYS)
+                    .followRedirects(HttpClient.Redirect.NORMAL)
                     .connectTimeout(Duration.ofSeconds(5))
                     .build()) {
 
@@ -548,6 +547,7 @@ public class Main extends Application {
                     site_select.setDisable(true);
                     url_input_text.setText(Function.langData.get("main_sliden").replaceAll("\\\\n", "\n"));
                 } else {
+                    site_select.getItems().clear();
                     site_select.getItems().addAll("",
                             "nicovrc.net",
                             "tool.suzumebachi.xyz"
@@ -556,6 +556,61 @@ public class Main extends Application {
                     url_input_text.setText(Function.langData.get("main_mylist").replaceAll("\\\\n", "\n"));
                 }
             });
+
+            if (new File("./fonts/NotoSansCJK-Regular.ttc").exists()){
+                output_combo.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSansCJK-Regular.ttc'),ormat('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font: 'noto-cjk';"
+                );
+                site_select.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSansCJK-Regular.ttc'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 'noto-cjk';"
+                );
+
+            } else if (new File("./fonts/NotoSansCJK-Regular.ttf").exists()){
+                output_combo.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSansCJK-Regular.ttf'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 'noto-cjk';"
+                );
+                site_select.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSansCJK-Regular.ttf'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 'noto-cjk';"
+                );
+            } else if (new File("./fonts/NotoSans"+fontLang+"-Medium.ttf").exists()){
+                output_combo.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSans"+fontLang+"-Medium.ttf'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 'noto-cjk';"
+                );
+                site_select.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSans"+fontLang+"-Medium.ttf'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 'noto-cjk';"
+                );
+            }
+
             main_root.getChildren().add(output_combo);
 
             Label site_select_text = new Label(Function.langData.get("main_output_site"));

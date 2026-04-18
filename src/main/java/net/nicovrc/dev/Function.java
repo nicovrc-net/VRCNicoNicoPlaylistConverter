@@ -234,7 +234,7 @@ public class Function {
             while ((str = reader.readLine()) != null) {
                 sb.append(str).append("\n");
             }
-            Text = sb.substring(0, Text.length() - 1);
+            Text = sb.substring(0, sb.length() - 1);
         } catch (Exception e) {
             e.printStackTrace();
         }
