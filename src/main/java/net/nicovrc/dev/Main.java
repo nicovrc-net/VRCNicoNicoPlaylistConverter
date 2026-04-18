@@ -12,11 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import net.nicovrc.dev.data.NicoNicoCookie;
-import net.nicovrc.dev.data.NicoNicoPlayList;
-import net.nicovrc.dev.data.PlayListData;
 import net.nicovrc.dev.json.*;
-import net.nicovrc.dev.prefab.Kinel;
-import net.nicovrc.dev.prefab.YamaPlayer1;
 
 import java.io.*;
 import java.net.URI;
@@ -101,7 +97,7 @@ public class Main extends Application {
             lang = "default";
         }
 
-        final HashMap<String, String> langData = Function.getTextList(lang);
+        Function.langData = Function.getTextList(lang);
 
         // フォント
         //System.out.println("[Info] Checking Fonts File");
@@ -174,19 +170,7 @@ public class Main extends Application {
         }
 
         //System.out.println("[Info] Setting Fonts File");
-        String fontLang = "JP";
-        try {
-            if (langData.get("lang_name").startsWith("한국어")){
-                fontLang = "KR";
-            } else if (langData.get("lang_name").startsWith("简体中文")){
-                fontLang = "SC";
-            } else if (langData.get("lang_name").startsWith("繁體中文")){
-                fontLang = "TC";
-            }
-        } catch (Exception e){
-            //e.printStackTrace();
-        }
-
+        String fontLang = Function.getFontLang();
         Font tempFont1 = Font.getDefault();
         try {
             if (new File("./fonts/NotoSansCJK-Regular.ttc").exists()){
@@ -231,26 +215,13 @@ public class Main extends Application {
 
         // Cookie情報
         file = new File("./tools/cookie.txt");
-        System.out.println("[Info] "+langData.get("niconico_login_check"));
+        System.out.println("[Info] "+Function.langData.get("niconico_login_check"));
 
 
         if (file.exists()){
             try {
                 // 復号化できなかったら削除する
-
-                String Text = null;
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))){
-                    String str;
-                    StringBuilder sb = new StringBuilder();
-                    while ((str = reader.readLine()) != null) {
-                        sb.append(str).append("\n");
-                    }
-                    Text = sb.toString();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                String s = Function.DecrypterText(Text.substring(0, Text.length() - 1));
+                String s = Function.DecrypterText(Function.FileRead_text("./tools/cookie.txt"));
 
                 //System.out.println(s);
                 if (!s.startsWith("nicosid=")){
@@ -263,7 +234,7 @@ public class Main extends Application {
         }
 
         if (!file.exists()){
-            System.out.println("[Info] "+langData.get("niconico_login_check_fail"));
+            System.out.println("[Info] "+Function.langData.get("niconico_login_check_fail"));
 
             sub_stage.setResizable(false);
             sub_stage.setMaximized(false);
@@ -273,13 +244,13 @@ public class Main extends Application {
             sub_stage.setHeight(300);
             final AnchorPane root = new AnchorPane();
 
-            Label login_label1 = new Label(langData.get("niconico_login_risk"));
+            Label login_label1 = new Label(Function.langData.get("niconico_login_risk"));
             login_label1.setLayoutX(5);
             login_label1.setLayoutY(5);
             login_label1.setFont(Size16Font);
             root.getChildren().add(login_label1);
 
-            Label login_label2 = new Label(langData.get("niconico_mail_tel"));
+            Label login_label2 = new Label(Function.langData.get("niconico_mail_tel"));
             login_label2.setLayoutX(10);
             login_label2.setLayoutY(30);
             login_label2.setFont(DefaultFont);
@@ -294,7 +265,7 @@ public class Main extends Application {
             mail_field.setFont(DefaultFont);
             root.getChildren().add(mail_field);
 
-            Label login_label3 = new Label(langData.get("niconico_password"));
+            Label login_label3 = new Label(Function.langData.get("niconico_password"));
             login_label3.setLayoutX(10);
             login_label3.setLayoutY(70);
             login_label3.setFont(DefaultFont);
@@ -309,12 +280,12 @@ public class Main extends Application {
             password_field.setFont(DefaultFont);
             root.getChildren().add(password_field);
 
-            Label login_label4 = new Label(langData.get("niconico_login_fail"));
+            Label login_label4 = new Label(Function.langData.get("niconico_login_fail"));
             login_label4.setLayoutX(10);
             login_label4.setLayoutY(150);
             login_label4.setFont(DefaultFont);
 
-            Label login_label5 = new Label(langData.get("niconico_2fa_code"));
+            Label login_label5 = new Label(Function.langData.get("niconico_2fa_code"));
             login_label5.setLayoutX(10);
             login_label5.setLayoutY(170);
             login_label5.setDisable(false);
@@ -329,7 +300,7 @@ public class Main extends Application {
             mfw_field.setFont(DefaultFont);
 
             NicoNicoCookie[] cookie = new NicoNicoCookie[]{null};
-            Button mfw_button = new Button(langData.get("niconico_2fa"));
+            Button mfw_button = new Button(Function.langData.get("niconico_2fa"));
             mfw_button.setLayoutX(10);
             mfw_button.setLayoutY(230);
             mfw_button.setFont(DefaultFont);
@@ -346,7 +317,7 @@ public class Main extends Application {
                 });
             });
 
-            Button button = new Button(langData.get("niconico_login"));
+            Button button = new Button(Function.langData.get("niconico_login"));
             button.setLayoutX(10);
             button.setLayoutY(120);
             button.setFont(DefaultFont);
@@ -389,74 +360,76 @@ public class Main extends Application {
                     e.printStackTrace();
                     return;
                 }
-                System.out.println("[Info] "+langData.get("niconico_login_success"));
+                System.out.println("[Info] "+Function.langData.get("niconico_login_success"));
             }
         } else {
-            System.out.println("[Info] "+langData.get("niconico_login_check_found"));
+            System.out.println("[Info] "+Function.langData.get("niconico_login_check_found"));
         }
 
         if (!file.exists()){
             return;
         }
 
-        // アップデート確認
-        System.out.println("[Info] "+langData.get("update_check"));
-        final boolean isWindowsBatchStart = new File("./tools").exists() && new File("./tools/jdk-21.0.2").exists();
-        String new_version = Function.Version;
-        try (HttpClient client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .followRedirects(HttpClient.Redirect.ALWAYS)
-                .connectTimeout(Duration.ofSeconds(5))
-                .build()) {
+        file = new File("./input.txt");
+        if (!file.exists()){
+            // アップデート確認
+            System.out.println("[Info] "+Function.langData.get("update_check"));
+            final boolean isWindowsBatchStart = new File("./tools").exists() && new File("./tools/jdk-21.0.2").exists();
+            String new_version = Function.Version;
+            try (HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2)
+                    .followRedirects(HttpClient.Redirect.ALWAYS)
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .build()) {
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases.atom"))
-                    .headers("User-Agent", Function.UserAgent)
-                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
-                    .GET()
-                    .build();
-            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            //System.out.println(send.body());
-            Matcher matcher = matcher_version.matcher(send.body());
-            if (matcher.find()){
-                new_version = matcher.group(2);
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(new URI("https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases.atom"))
+                        .headers("User-Agent", Function.UserAgent)
+                        .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                        .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                        .GET()
+                        .build();
+                HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                //System.out.println(send.body());
+                Matcher matcher = matcher_version.matcher(send.body());
+                if (matcher.find()){
+                    new_version = matcher.group(2);
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                return;
             }
-        } catch (Exception e){
-            e.printStackTrace();
-            return;
-        }
 
-        if (Function.Version.equals(new_version)){
-            System.out.println("[Info] "+langData.get("update_check_fail"));
-        } else {
-            System.out.println("[Info] "+langData.get("update_check_found"));
-            NTSystem ntSystem = new NTSystem();
+            if (Function.Version.equals(new_version)){
+                System.out.println("[Info] "+Function.langData.get("update_check_fail"));
+            } else {
+                System.out.println("[Info] "+Function.langData.get("update_check_found"));
+                NTSystem ntSystem = new NTSystem();
 
-            if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
-                File c_file = new File("./");
-                final String CurrentFolderPass = c_file.getCanonicalPath().replaceAll("\\\\", "/");
+                if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
+                    File c_file = new File("./");
+                    final String CurrentFolderPass = c_file.getCanonicalPath().replaceAll("\\\\", "/");
 
-                File update_file = new File("./tools/update1.bat");
-                if (update_file.exists()) {
-                    update_file.delete();
-                }
-                update_file = new File("./tools/update2.bat");
-                if (update_file.exists()) {
-                    update_file.delete();
-                }
+                    File update_file = new File("./tools/update1.bat");
+                    if (update_file.exists()) {
+                        update_file.delete();
+                    }
+                    update_file = new File("./tools/update2.bat");
+                    if (update_file.exists()) {
+                        update_file.delete();
+                    }
 
-                FileWriter file1 = new FileWriter("./tools/update1.bat");
-                PrintWriter pw = new PrintWriter(new BufferedWriter(file1));
-                pw.print("start ./tools/update2.bat".replaceAll("\\./", CurrentFolderPass + "/"));
-                pw.close();
-                file1.close();
-                pw = null;
-                file1 = null;
+                    FileWriter file1 = new FileWriter("./tools/update1.bat");
+                    PrintWriter pw = new PrintWriter(new BufferedWriter(file1));
+                    pw.print("start ./tools/update2.bat".replaceAll("\\./", CurrentFolderPass + "/"));
+                    pw.close();
+                    file1.close();
+                    pw = null;
+                    file1 = null;
 
-                file1 = new FileWriter("./tools/update2.bat");
-                pw = new PrintWriter(new BufferedWriter(file1));
-                String str = """
+                    file1 = new FileWriter("./tools/update2.bat");
+                    pw = new PrintWriter(new BufferedWriter(file1));
+                    String str = """
                         curl https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases/download/#ver#/VRCNicoNicoPlaylistConverter.zip -L --output ./tools/VRCNicoNicoPlaylistConverter.zip
                         tar -xf ./tools/VRCNicoNicoPlaylistConverter.zip -C ./tools\\
                         del ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
@@ -467,634 +440,76 @@ public class Main extends Application {
                         move ./tools\\lang ./
                         exit
                         """;
-                pw.print(str.replaceAll("#ver#", new_version).replaceAll("\\./", CurrentFolderPass.replaceAll("/", "\\\\\\\\") + "\\\\"));
-                pw.close();
-                file1.close();
-                pw = null;
-                file1 = null;
-            }
-
-            sub_stage.setResizable(false);
-            sub_stage.setMaximized(false);
-            sub_stage.setFullScreen(false);
-            sub_stage.setTitle(langData.get("update_notify"));
-            sub_stage.setWidth(400);
-            sub_stage.setHeight(200);
-
-            AnchorPane root = new AnchorPane();
-            Scene scene = new Scene(root);
-
-            Button button = new Button(langData.get("update_close"));
-            button.setLayoutX(300);
-            button.setLayoutY(10);
-            button.setFont(DefaultFont);
-            button.setOnAction(e -> {
-                sub_stage.close();
-                File update_file = new File("./tools/update1.bat");
-                if (update_file.exists()) {
-                    update_file.delete();
+                    pw.print(str.replaceAll("#ver#", new_version).replaceAll("\\./", CurrentFolderPass.replaceAll("/", "\\\\\\\\") + "\\\\"));
+                    pw.close();
+                    file1.close();
+                    pw = null;
+                    file1 = null;
                 }
-                update_file = new File("./tools/update2.bat");
-                if (update_file.exists()) {
-                    update_file.delete();
-                }
-            });
-            root.getChildren().add(button);
 
-            Label update_label1 = new Label(langData.get("update_notify"));
-            update_label1.setLayoutX(5);
-            update_label1.setLayoutY(5);
-            update_label1.setFont(Size16Font);
-            root.getChildren().add(update_label1);
+                sub_stage.setResizable(false);
+                sub_stage.setMaximized(false);
+                sub_stage.setFullScreen(false);
+                sub_stage.setTitle(Function.langData.get("update_notify"));
+                sub_stage.setWidth(400);
+                sub_stage.setHeight(200);
 
-            Label update_label2 = new Label(langData.get("update_notify_update_found"));
-            update_label2.setLayoutX(10);
-            update_label2.setLayoutY(40);
-            update_label2.setFont(DefaultFont);
-            root.getChildren().add(update_label2);
+                AnchorPane root = new AnchorPane();
+                Scene scene = new Scene(root);
 
-            Label update_label3 = new Label(langData.get("update_notify_now_version").replaceAll("#ver#", Function.Version));
-            update_label3.setLayoutX(10);
-            update_label3.setLayoutY(80);
-            update_label3.setFont(DefaultFont);
-            root.getChildren().add(update_label3);
-
-            Label update_label4 = new Label(langData.get("update_notify_new_version").replaceAll("#ver#", new_version));
-            update_label4.setLayoutX(10);
-            update_label4.setLayoutY(100);
-            update_label4.setFont(DefaultFont);
-            root.getChildren().add(update_label4);
-
-            if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
-                Button update_button = new Button(langData.get("update_notify_update"));
-                update_button.setLayoutX(10);
-                update_button.setLayoutY(120);
-                update_button.setFont(DefaultFont);
-                update_button.setOnAction(e -> {
-                    try {
-                        final Runtime runtime = Runtime.getRuntime();
-                        final Process exec0 = runtime.exec(new String[]{"./tools/update1.bat"});
-                        Thread.ofVirtual().start(() -> {
-                            try {
-                                Thread.sleep(5000L);
-                            } catch (Exception ex) {
-                                //ex.printStackTrace();
-                            }
-
-                            if (exec0.isAlive()) {
-                                exec0.destroy();
-                            }
-                        });
-                        exec0.waitFor();
-                    } catch (Exception ex){
-                        // ex.printStackTrace();
-                    }
+                Button button = new Button(Function.langData.get("update_close"));
+                button.setLayoutX(300);
+                button.setLayoutY(10);
+                button.setFont(DefaultFont);
+                button.setOnAction(e -> {
                     sub_stage.close();
+                    File update_file = new File("./tools/update1.bat");
+                    if (update_file.exists()) {
+                        update_file.delete();
+                    }
+                    update_file = new File("./tools/update2.bat");
+                    if (update_file.exists()) {
+                        update_file.delete();
+                    }
                 });
-                root.getChildren().add(update_button);
-            }
-
-            sub_stage.setScene(scene);
-            sub_stage.showAndWait();
-        }
-
-        // 初期画面
-        main_stage.setResizable(false);
-        main_stage.setFullScreen(false);
-        main_stage.setMaximized(false);
-        main_stage.setWidth(450);
-        main_stage.setHeight(650);
-        main_stage.setTitle("VRCNicoNicoPlayListConverter Ver" + Function.Version);
-        final AnchorPane main_root = new AnchorPane();
-        final Scene main_scene = new Scene(main_root);
-
-        Label url_input_text = new Label(langData.get("main_mylist").replaceAll("\\\\n", "\n"));
-        url_input_text.setLayoutX(5);
-        url_input_text.setLayoutY(5);
-        url_input_text.setFont(DefaultFont);
-        //url_input_text.setFont(new Font(16));
-        main_root.getChildren().add(url_input_text);
-
-        TextArea url_input = new TextArea();
-        //url_input.setFont(DefaultFont);
-        url_input.setLayoutX(5);
-        url_input.setLayoutY(65);
-        url_input.setPrefSize(400, 300);
-        url_input.setWrapText(false);
-        url_input.setFont(DefaultFont);
-        main_root.getChildren().add(url_input);
-
-        Label output_mode_text = new Label(langData.get("main_output"));
-        output_mode_text.setLayoutX(5);
-        output_mode_text.setLayoutY(380);
-        output_mode_text.setFont(DefaultFont);
-        main_root.getChildren().add(output_mode_text);
-
-        ComboBox<String> output_combo = new ComboBox<>();
-        ComboBox<String> site_select = new ComboBox<>();
-
-        output_combo.setLayoutX(5);
-        output_combo.setLayoutY(400);
-        output_combo.getItems().addAll("",
-                "iwaSync ("+langData.get("main_json")+")",
-                "iwaSync ("+langData.get("main_prefab")+")",
-                "KineL式(りら式) ("+langData.get("main_prefab")+")",
-                "YamaPlayer ("+langData.get("main_json")+")",
-                "YamaPlayer (v1,"+langData.get("main_prefab")+")",
-                "YamaPlayer (v2,"+langData.get("main_prefab")+")",
-                "VizVid ("+langData.get("main_json")+")",
-                "あやぷれいやー2 ("+langData.get("main_json")+")",
-                "Sliden"
-        );
-        output_combo.setPrefWidth(300);
-        output_combo.setOnAction((event)->{
-            if (output_combo.getSelectionModel().getSelectedItem().equals("Sliden")){
-                site_select.getItems().clear();
-                site_select.setDisable(true);
-                url_input_text.setText(langData.get("main_sliden").replaceAll("\\\\n", "\n"));
-            } else {
-                site_select.getItems().addAll("",
-                        "nicovrc.net",
-                        "tool.suzumebachi.xyz"
-                );
-                site_select.setDisable(false);
-                url_input_text.setText(langData.get("main_mylist").replaceAll("\\\\n", "\n"));
-            }
-        });
-        main_root.getChildren().add(output_combo);
-
-        Label site_select_text = new Label(langData.get("main_output_site"));
-        site_select_text.setLayoutX(5);
-        site_select_text.setLayoutY(440);
-        site_select_text.setFont(DefaultFont);
-        main_root.getChildren().add(site_select_text);
-
-        site_select.setLayoutX(5);
-        site_select.setLayoutY(460);
-        site_select.getItems().addAll("",
-                "nicovrc.net",
-                "tool.suzumebachi.xyz"
-        );
-        site_select.setPrefWidth(300);
-        main_root.getChildren().add(site_select);
-
-        Label status = new Label(langData.get("main_status_idle"));
-        status.setLayoutX(5);
-        status.setLayoutY(550);
-        //status.setFont(new Font(16));
-        status.setFont(DefaultFont);
-        main_root.getChildren().add(status);
-
-        Button run_button = new Button(langData.get("main_output_button"));
-        run_button.setLayoutX(5);
-        run_button.setLayoutY(500);
-        run_button.setFont(DefaultFont);
-        run_button.setOnAction((event)->{
-            Thread.ofVirtual().start(()->{
-
-                String text = url_input.getText();
-
-                if (!output_combo.getSelectionModel().getSelectedItem().equals("Sliden")){
-                    String Text = null;
-                    String cookieText = null;
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("./tools/cookie.txt")), StandardCharsets.UTF_8))){
-                        String str;
-                        StringBuilder sb = new StringBuilder();
-                        while ((str = reader.readLine()) != null) {
-                            sb.append(str).append("\n");
-                        }
-                        Text = sb.toString();
-                        cookieText = Function.DecrypterText(Text.substring(0, Text.length() - 1));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-
-                    String[] split = text.split("\n");
-                    if (split.length == 0 || text.isEmpty()){
-                        Platform.runLater(()->status.setText(langData.get("main_status_empty_error")));
-                        return;
-                    }
-
-                    // 仮組み立て
-                    List<PlayListData> list = new ArrayList<>();
-                    for (String url : split){
-                        url = url.split("\\?")[0];
-                        PlayListData playListData = new PlayListData();
-                        if (url.startsWith("https://nico.ms") || url.startsWith("http://nico.ms") || url.startsWith("https://www.nicovideo.jp/watch/") || url.startsWith("http://www.nicovideo.jp/watch/")){
-                            playListData.setTitle("動画");
-                            playListData.setVideoURL(url);
-                            list.add(playListData);
-                        } else if (Function.mylist_url1.matcher(url).find()) {
-                            playListData.setTitle("プレイリスト");
-                            playListData.setVideoURL(url);
-                            list.add(playListData);
-                        } else if (Function.mylist_url2.matcher(url).find()) {
-                            playListData.setTitle("プレイリスト");
-                            playListData.setVideoURL(url);
-                            list.add(playListData);
-                        }
-                    }
-
-                    // 動画情報取得
-                    List<PlayListData> temp = new ArrayList<>();
-                    String playlistTitle = null;
-                    for (PlayListData data : list) {
-                        //System.out.println(data.getTitle() + " / " + data.getVideoURL());
-                        if (data.getTitle().equals("動画")){
-                            PlayListData tempData = new PlayListData();
-                            tempData.setTitle(Function.getVideoTitle(data.getVideoURL(), cookieText));
-                            if (site_select.getSelectionModel().getSelectedItem().equals("nicovrc.net")){
-                                tempData.setVideoURL("https://nicovrc.net/?url="+data.getVideoURL());
-                            } else if (site_select.getSelectionModel().getSelectedItem().equals("tool.suzumebachi.xyz")) {
-                                tempData.setVideoURL("https://testniconicomment.suzumebachi.xyz/nicovideo/"+data.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]);
-                            }
-                            temp.add(tempData);
-                            if (list.size() == 1){
-                                playlistTitle = tempData.getTitle();
-                            }
-                        } else {
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_mylist")));
-                            NicoNicoPlayList playList = Function.getPlayList(data.getVideoURL(), cookieText);
-                            if (list.size() == 1){
-                                playlistTitle = playList.getPlaylistTitle();
-                            }
-
-                            int i = 0;
-                            for (PlayListData d : playList.getPlaylistData()) {
-                                final String finalI = ""+i;
-                                Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_get_list").replaceAll("#now#", finalI).replaceAll("#max#", ""+playList.getPlaylistData().size())));
-                                if (site_select.getSelectionModel().getSelectedItem().equals("nicovrc.net")){
-                                    d.setVideoURL("https://nicovrc.net/?url="+d.getVideoURL());
-                                } else if (site_select.getSelectionModel().getSelectedItem().equals("tool.suzumebachi.xyz")) {
-                                    d.setVideoURL("https://testniconicomment.suzumebachi.xyz/nicovideo/"+d.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]);
-                                }
-                                temp.add(d);
-                                i++;
-                            }
-
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_get_success")));
-                        }
-                    }
-
-                    // JSON or Prefabへ
-                    int min = 0;
-                    final String maxText = ""+temp.size();
-
-                    Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
-
-                    String jsonText = "";
-                    String jsonBackupText = null;
-
-                    if (output_combo.getSelectionModel().getSelectedItem().equals("iwaSync ("+langData.get("main_json")+")")){
-                        iwaSync json = new iwaSync();
-                        iwaSync_Tracks[] iwaSyncTracks = new iwaSync_Tracks[temp.size()];
-
-                        for (PlayListData data : temp) {
-                            int finalMin = min;
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalMin).replaceAll("#max#", maxText)));
-                            iwaSyncTracks[min] = new iwaSync_Tracks();
-                            iwaSyncTracks[min].setMode(1);
-                            iwaSyncTracks[min].setTitle(data.getTitle());
-                            iwaSyncTracks[min].setUrl(data.getVideoURL());
-                            min++;
-                        }
-
-                        json.setTracks(iwaSyncTracks);
-                        jsonText = Function.gson.toJson(json);
-                    } else if (output_combo.getSelectionModel().getSelectedItem().equals("iwaSync ("+langData.get("main_prefab")+")")){
-
-                        net.nicovrc.dev.prefab.iwaSync iwaSync = new net.nicovrc.dev.prefab.iwaSync();
-                        iwaSync.setUrls(temp);
-
-                        jsonText = iwaSync.getPrefab();
-
-                    } else if (output_combo.getSelectionModel().getSelectedItem().equals("KineL式(りら式) ("+langData.get("main_prefab")+")")){
-
-                        Kinel kinel = new Kinel();
-                        kinel.setUrls(temp);
-
-                        jsonText = kinel.getPrefab();
-
-                    } else if (output_combo.getSelectionModel().getSelectedItem().equals("YamaPlayer ("+langData.get("main_json")+")")){
-
-                        YamaPlayer yamaPlayer = new YamaPlayer();
-                        YamaPlayer_playlists[] playlists = {new YamaPlayer_playlists()};
-                        if (playlistTitle != null){
-                            playlists[0].setName(playlistTitle);
-                        }
-                        playlists[0].setTracks(new YamaPlayer_Tracks[temp.size()]);
-
-                        for (PlayListData data : temp) {
-                            int finalMin = min;
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalMin).replaceAll("#max#", maxText)));
-                            playlists[0].getTracks()[min] = new YamaPlayer_Tracks();
-                            playlists[0].getTracks()[min].setMode(1);
-                            playlists[0].getTracks()[min].setTitle(data.getTitle());
-                            playlists[0].getTracks()[min].setUrl(data.getVideoURL());
-                            min++;
-                        }
-
-                        yamaPlayer.setPlaylists(playlists);
-
-                        jsonText = Function.gson.toJson(yamaPlayer);
-
-                    } else if (output_combo.getSelectionModel().getSelectedItem().equals("YamaPlayer (v1,"+langData.get("main_prefab")+")")){
-
-                        YamaPlayer1 yamaPlayer1 = new YamaPlayer1();
-                        yamaPlayer1.setUrls(temp);
-                        if (playlistTitle != null){
-                            yamaPlayer1.setPlaylistName(playlistTitle);
-                        } else {
-                            yamaPlayer1.setPlaylistName("NicoNicoPlaylist");
-                        }
-
-                        jsonText = yamaPlayer1.getPrefab();
-
-                    } else if (output_combo.getSelectionModel().getSelectedItem().equals("YamaPlayer (v2,"+langData.get("main_prefab")+")")){
-
-                        YamaPlayer1 yamaPlayer1 = new YamaPlayer1();
-                        yamaPlayer1.setUrls(temp);
-                        if (playlistTitle != null){
-                            yamaPlayer1.setPlaylistName(playlistTitle);
-                        } else {
-                            yamaPlayer1.setPlaylistName("NicoNicoPlaylist");
-                        }
-
-                        jsonText = yamaPlayer1.getPrefab();
-
-                    } else if (output_combo.getSelectionModel().getSelectedItem().equals("VizVid ("+langData.get("main_json")+")")){
-
-                        VizVid vizVid = new VizVid();
-                        if (playlistTitle != null){
-                            vizVid.setTitle(playlistTitle);
-                        }
-                        VizVid_entries[] entries = new VizVid_entries[temp.size()];
-
-                        int i = 0;
-                        for (PlayListData playListData : temp) {
-                            int finalI = i;
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalI).replaceAll("#max#", maxText)));
-
-                            entries[i] = new VizVid_entries();
-                            entries[i].setTitle(playListData.getTitle());
-                            entries[i].setUrl(playListData.getVideoURL());
-                            entries[i].setUrlForQuest(playListData.getVideoURL());
-                            entries[i].setPlayerIndex(0);
-
-                            i++;
-                        }
-
-                        vizVid.setEntries(entries);
-                        jsonText = Function.gson.toJson(vizVid);
-
-                    } else if (output_combo.getSelectionModel().getSelectedItem().equals("あやぷれいやー2 ("+langData.get("main_json")+")")){
-
-                        ayaplayer ayaplayer = new ayaplayer();
-                        ayaplayer_backup backup = new ayaplayer_backup();
-
-                        ayaplayer.setPart(0);
-                        ayaplayer.setTotal_parts(1);
-                        ayaplayer.setCount(temp.size() + 1);
-                        ayaplayer.setTitles(new String[temp.size() + 1]);
-                        ayaplayer.setUrls(new String[temp.size()]);
-
-                        ayaplayer.getTitles()[0] = "Root";
-
-                        int[] temp1 = new int[temp.size() + 1];
-                        int[] temp2 = new int[temp.size() + 1];
-                        int[] temp3 = new int[temp.size() + 1];
-
-                        temp1[0] = 1;
-                        temp2[0] = -1;
-                        temp3[0] = -1;
-
-                        int i = 1;
-                        for (PlayListData playListData : temp) {
-                            int finalI = i;
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalI).replaceAll("#max#", maxText)));
-
-                            ayaplayer.getTitles()[i] = playListData.getTitle();
-                            ayaplayer.getUrls()[i - 1] = playListData.getVideoURL();
-
-                            temp1[i] = 0;
-                            temp2[i] = 0;
-                            temp3[i] = i - 1;
-
-                            i++;
-                        }
-
-                        ayaplayer.setTypes_base64(intArrayToBase64(temp1));
-                        ayaplayer.setParents_base64(intArrayToBase64(temp2));
-                        ayaplayer.setTargets_base64(intArrayToBase64(temp3));
-
-
-                        jsonText = Function.gson.toJson(ayaplayer);
-
-                        backup.setTitle("Root");
-                        backup.setType("folder");
-                        backup.setChildren(new ayaplayer_backup_children[temp.size()]);
-                        i = 0;
-                        for (PlayListData playListData : temp) {
-                            int finalI = i;
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_list").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem()).replaceAll("#now#", ""+ finalI).replaceAll("#max#", maxText)));
-
-                            backup.getChildren()[i] = new ayaplayer_backup_children();
-                            backup.getChildren()[i].setTitle(playListData.getTitle());
-                            backup.getChildren()[i].setType("video");
-                            backup.getChildren()[i].setUrl(playListData.getVideoURL());
-
-                            i++;
-                        }
-
-                        jsonBackupText = Function.gson.toJson(backup);
-
-                    }
-
-                    String jsonFileName = "./NicoNicoJson" + (output_combo.getSelectionModel().getSelectedItem().endsWith(langData.get("main_json") + ")") ? ".json" : ".prefab");
-                    if (playlistTitle != null){
-                        jsonFileName = playlistTitle + (output_combo.getSelectionModel().getSelectedItem().endsWith(langData.get("main_json") + ")") ? ".json" : ".prefab");
-                    }
-
-                    if (new File(jsonFileName).exists()){
-                        new File(jsonFileName).delete();
-                    }
-
-                    try (FileWriter file1 = new FileWriter(jsonFileName);
-                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
-
-                        pw.print(jsonText);
-                    } catch (Exception e){
-                        //e.printStackTrace();
-                    }
-
-                    if (jsonBackupText != null){
-                        try (FileWriter file1 = new FileWriter(jsonFileName.replaceAll("\\.json", "_backup.json"));
-                             PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
-
-                            pw.print(jsonBackupText);
-                        } catch (Exception e){
-                            //e.printStackTrace();
-                        }
-                    }
-
-                    Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", output_combo.getSelectionModel().getSelectedItem())));
-                } else {
-                    // Sliden
-
-                    // ffmpeg
-                    String ffmpegPass = "";
-                    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")) {
-                        File ffmpeg_file = new File("C:/Windows/ffmpeg.exe");
-                        if (!ffmpeg_file.exists()){
-                            ffmpeg_file = new File("C:/Windows/System32/ffmpeg.exe");
-                        }
-                        if (!ffmpeg_file.exists()){
-                            ffmpeg_file = new File("D:/Windows/ffmpeg.exe");
-                        }
-                        if (!ffmpeg_file.exists()){
-                            ffmpeg_file = new File("D:/Windows/System32/ffmpeg.exe");
-                        }
-                        if (!ffmpeg_file.exists()){
-                            ffmpeg_file = new File("./tools/ffmpeg.exe");
-                        }
-
-                        if (!ffmpeg_file.exists()){
-                            try (HttpClient client = HttpClient.newBuilder()
-                                    .version(HttpClient.Version.HTTP_2)
-                                    .followRedirects(HttpClient.Redirect.ALWAYS)
-                                    .connectTimeout(Duration.ofSeconds(5))
-                                    .build()) {
-
-                                HttpRequest request = HttpRequest.newBuilder()
-                                        .uri(new URI("https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"))
-                                        .headers("User-Agent", Function.UserAgent)
-                                        .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                                        .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
-                                        .GET()
-                                        .build();
-                                HttpResponse<byte[]> send = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-
-                                try (FileOutputStream fos = new FileOutputStream("./tools/ffmpeg.7z")){
-                                    fos.write(send.body());
-                                }
-
-                                final Runtime runtime = Runtime.getRuntime();
-                                final Process exec0 = runtime.exec(new String[]{"cd ./tools/ && tar -xf ./ffmpeg.7z"});
-                                Thread.ofVirtual().start(() -> {
-                                    try {
-                                        Thread.sleep(10000L);
-                                    } catch (Exception ex) {
-                                        //ex.printStackTrace();
-                                    }
-
-                                    if (exec0.isAlive()) {
-                                        exec0.destroy();
-                                    }
-                                });
-                                exec0.waitFor();
-
-                                File file1 = new File("./tools");
-                                for (File listFile : file1.listFiles()) {
-                                    if (listFile.getName().startsWith("ffmpeg")){
-                                        ffmpegPass = "./tools/"+listFile.getName()+"/bin/ffmpeg.exe";
-                                        break;
-                                    }
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                                return;
-                            }
-                        } else {
-
-                            try {
-                                ffmpegPass = ffmpeg_file.getCanonicalPath();
-                            } catch (Exception e){
-                                // e.printStackTrace();
-                            }
-
-                        }
-                    } else {
+                root.getChildren().add(button);
+
+                Label update_label1 = new Label(Function.langData.get("update_notify"));
+                update_label1.setLayoutX(5);
+                update_label1.setLayoutY(5);
+                update_label1.setFont(Size16Font);
+                root.getChildren().add(update_label1);
+
+                Label update_label2 = new Label(Function.langData.get("update_notify_update_found"));
+                update_label2.setLayoutX(10);
+                update_label2.setLayoutY(40);
+                update_label2.setFont(DefaultFont);
+                root.getChildren().add(update_label2);
+
+                Label update_label3 = new Label(Function.langData.get("update_notify_now_version").replaceAll("#ver#", Function.Version));
+                update_label3.setLayoutX(10);
+                update_label3.setLayoutY(80);
+                update_label3.setFont(DefaultFont);
+                root.getChildren().add(update_label3);
+
+                Label update_label4 = new Label(Function.langData.get("update_notify_new_version").replaceAll("#ver#", new_version));
+                update_label4.setLayoutX(10);
+                update_label4.setLayoutY(100);
+                update_label4.setFont(DefaultFont);
+                root.getChildren().add(update_label4);
+
+                if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
+                    Button update_button = new Button(Function.langData.get("update_notify_update"));
+                    update_button.setLayoutX(10);
+                    update_button.setLayoutY(120);
+                    update_button.setFont(DefaultFont);
+                    update_button.setOnAction(e -> {
                         try {
-                            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", "which ffmpeg");
-                            Process process = pb.start();
-                            process.waitFor();
-
-                            Matcher matcher = Function.matcher_ffmpeg.matcher(new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
-                            if (matcher.find()){
-                                ffmpegPass = "/"+matcher.group(1)+"/ffmpeg";
-                            } else {
-                                Platform.runLater(()->status.setText(langData.get("main_status_sliden_error_ffmpeg")));
-                                return;
-                            }
-
-                        } catch (Exception e){
-                            // e.printStackTrace();
-                        }
-                    }
-
-                    if (!Function.matcher_imagefile.matcher(text).find()){
-                        Platform.runLater(()->status.setText(langData.get("main_status_sliden_error")));
-                        return;
-                    }
-
-                    File file1 = new File("./temp");
-                    if (file1.exists()){
-                        for (File f : file1.listFiles()) {
-                            f.delete();
-                        }
-                        file1.delete();
-                    }
-
-                    file1.mkdir();
-
-                    String[] split = text.split("\n");
-                    String kaku = split[0].split("\\.")[split[0].split("\\.").length - 1];
-                    int size = split.length;
-
-                    Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", "Sliden")));
-
-                    for (int i = 0; i < size; i++){
-                        try (FileInputStream fis = new FileInputStream(split[i])){
-
-                            byte[] bytes = fis.readAllBytes();
-
-                            String[] split1 = split[i].split("\\.");
-                            String newFileName = String.format("%08d", i) + "." + split1[split1.length - 1];
-
-                            try (FileOutputStream fos = new FileOutputStream("./temp/"+newFileName)){
-                                fos.write(bytes);
-                            }
-
-                        } catch (Exception e){
-                            return;
-                        }
-                    }
-
-                    try {
-
-                        File file2 = new File("./Sliden.mp4");
-                        if (file2.exists()){
-                            file2.delete();
-                        }
-
-                        if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")) {
-
-                            String command = "cd /D \""+new File("./temp").getCanonicalPath()+"\"\n"+ffmpegPass+" -framerate 1 -i %%08d."+kaku+" -c:v libx264 -r 60 -pix_fmt yuv420p ../Sliden.mp4";
-                            try (FileWriter f = new FileWriter("./temp.bat");
-                                 PrintWriter pw = new PrintWriter(new BufferedWriter(f))){
-
-                                pw.print(command);
-                            } catch (Exception e){
-                                //e.printStackTrace();
-                            }
-
                             final Runtime runtime = Runtime.getRuntime();
-                            final Process exec0 = runtime.exec(new String[]{"./temp.bat"});
+                            final Process exec0 = runtime.exec(new String[]{"./tools/update1.bat"});
                             Thread.ofVirtual().start(() -> {
                                 try {
-                                    Thread.sleep(15000L);
+                                    Thread.sleep(5000L);
                                 } catch (Exception ex) {
                                     //ex.printStackTrace();
                                 }
@@ -1104,39 +519,143 @@ public class Main extends Application {
                                 }
                             });
                             exec0.waitFor();
-
-                            //System.out.println(new String(exec0.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
-                            //System.out.println(new String(exec0.getErrorStream().readAllBytes(), StandardCharsets.UTF_8));
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", "Sliden")));
-                        } else {
-
-                            ProcessBuilder pb = new ProcessBuilder(ffmpegPass, "-v", "quiet", "-framerate", "1", "-pattern_type", "glob", "-i", "'./temp/%08d.*'", "-c:v", "libx264", "-r", "60", "-pix_fmt", "yuv420p", "./Sliden.mp4");
-                            Process process = pb.start();
-                            process.waitFor();
-                            Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", "Sliden")));
+                        } catch (Exception ex){
+                            // ex.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                        sub_stage.close();
+                    });
+                    root.getChildren().add(update_button);
                 }
 
+                sub_stage.setScene(scene);
+                sub_stage.showAndWait();
+            }
 
+            // 初期画面
+            main_stage.setResizable(false);
+            main_stage.setFullScreen(false);
+            main_stage.setMaximized(false);
+            main_stage.setWidth(450);
+            main_stage.setHeight(650);
+            main_stage.setTitle("VRCNicoNicoPlayListConverter Ver" + Function.Version);
+            final AnchorPane main_root = new AnchorPane();
+            final Scene main_scene = new Scene(main_root);
+
+            Label url_input_text = new Label(Function.langData.get("main_mylist").replaceAll("\\\\n", "\n"));
+            url_input_text.setLayoutX(5);
+            url_input_text.setLayoutY(5);
+            url_input_text.setFont(DefaultFont);
+            //url_input_text.setFont(new Font(16));
+            main_root.getChildren().add(url_input_text);
+
+            TextArea url_input = new TextArea();
+            //url_input.setFont(DefaultFont);
+            url_input.setLayoutX(5);
+            url_input.setLayoutY(65);
+            url_input.setPrefSize(400, 300);
+            url_input.setWrapText(false);
+            url_input.setFont(DefaultFont);
+            main_root.getChildren().add(url_input);
+
+            Label output_mode_text = new Label(Function.langData.get("main_output"));
+            output_mode_text.setLayoutX(5);
+            output_mode_text.setLayoutY(380);
+            output_mode_text.setFont(DefaultFont);
+            main_root.getChildren().add(output_mode_text);
+
+            ComboBox<String> output_combo = new ComboBox<>();
+            ComboBox<String> site_select = new ComboBox<>();
+
+            output_combo.setLayoutX(5);
+            output_combo.setLayoutY(400);
+            output_combo.getItems().addAll("",
+                    "iwaSync ("+Function.langData.get("main_json")+")",
+                    "iwaSync ("+Function.langData.get("main_prefab")+")",
+                    "KineL式(りら式) ("+Function.langData.get("main_prefab")+")",
+                    "YamaPlayer ("+Function.langData.get("main_json")+")",
+                    "YamaPlayer (v1,"+Function.langData.get("main_prefab")+")",
+                    "YamaPlayer (v2,"+Function.langData.get("main_prefab")+")",
+                    "VizVid ("+Function.langData.get("main_json")+")",
+                    "あやぷれいやー2 ("+Function.langData.get("main_json")+")",
+                    "Sliden"
+            );
+            output_combo.setPrefWidth(300);
+            output_combo.setOnAction((event)->{
+                if (output_combo.getSelectionModel().getSelectedItem().equals("Sliden")){
+                    site_select.getItems().clear();
+                    site_select.setDisable(true);
+                    url_input_text.setText(Function.langData.get("main_sliden").replaceAll("\\\\n", "\n"));
+                } else {
+                    site_select.getItems().addAll("",
+                            "nicovrc.net",
+                            "tool.suzumebachi.xyz"
+                    );
+                    site_select.setDisable(false);
+                    url_input_text.setText(Function.langData.get("main_mylist").replaceAll("\\\\n", "\n"));
+                }
             });
-        });
-        main_root.getChildren().add(run_button);
+            main_root.getChildren().add(output_combo);
+
+            Label site_select_text = new Label(Function.langData.get("main_output_site"));
+            site_select_text.setLayoutX(5);
+            site_select_text.setLayoutY(440);
+            site_select_text.setFont(DefaultFont);
+            main_root.getChildren().add(site_select_text);
+
+            site_select.setLayoutX(5);
+            site_select.setLayoutY(460);
+            site_select.getItems().addAll("",
+                    "nicovrc.net",
+                    "tool.suzumebachi.xyz"
+            );
+            site_select.setPrefWidth(300);
+            main_root.getChildren().add(site_select);
+
+            Label status = new Label(Function.langData.get("main_status_idle"));
+            status.setLayoutX(5);
+            status.setLayoutY(550);
+            //status.setFont(new Font(16));
+            status.setFont(DefaultFont);
+            main_root.getChildren().add(status);
+
+            Button run_button = new Button(Function.langData.get("main_output_button"));
+            run_button.setLayoutX(5);
+            run_button.setLayoutY(500);
+            run_button.setFont(DefaultFont);
+            run_button.setOnAction((event)->{
+                Thread.ofVirtual().start(()->{
+                    try {
+                        Function.Convert(url_input.getText(), output_combo.getSelectionModel().getSelectedItem(), site_select.getSelectionModel().getSelectedItem(), status);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                });
+            });
+            main_root.getChildren().add(run_button);
 
 
-        main_stage.setScene(main_scene);
-        main_stage.showAndWait();
+            main_stage.setScene(main_scene);
+            main_stage.showAndWait();
 
+        } else {
+
+            System.out.println("自動化モード～♪");
+
+            String text = Function.FileRead_text("./input.txt");
+
+            file = new File("./output_site.txt");
+            if (!file.exists()){
+                System.out.println("エラー: 出力形式が指定されていません！");
+                return;
+            }
+
+            String outputSite = Function.FileRead_text("./output_site.txt");
+            String outputMode = Function.FileRead_text("./output_mode.txt");
+
+            Function.Convert(text, outputSite, outputMode, null);
+
+
+        }
     }
 
-    private static String intArrayToBase64(int[] ints) {
-        if (ints == null || ints.length == 0) return "";
-        ByteBuffer buf = ByteBuffer.allocate(ints.length * Integer.BYTES)
-                .order(ByteOrder.LITTLE_ENDIAN);
-        for (int v : ints) buf.putInt(v);
-        byte[] bytes = buf.array();
-        return Base64.getEncoder().encodeToString(bytes);
-    }
 }
