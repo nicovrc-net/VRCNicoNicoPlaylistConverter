@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 public class Function {
 
-    public static final String Version = "0.3.1-beta.1";
+    public static final String Version = "0.4.0-rc.1";
 
     public static final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
 
@@ -514,7 +514,7 @@ public class Function {
 
     public static void Convert(String inputText, String outputMode, String outputSiteName, Label status) throws Exception{
 
-        if (!outputMode.equals("Sliden")){
+        if (!outputMode.equals("Sliden") && !outputMode.equals("UnaSlides")){
             String cookieText = DecrypterText(FileRead_text("./tools/cookie.txt"));
 
             String[] split = inputText.split("\n");
@@ -837,7 +837,7 @@ public class Function {
             }
 
         } else {
-            // Sliden
+            // Sliden or UnaSlides
             // ffmpeg
             String ffmpegPass = "";
             if (isWindows) {
@@ -958,29 +958,78 @@ public class Function {
             int size = split.length;
 
             if (status != null){
-                Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", "Sliden")));
+                Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", outputMode)));
             } else {
-                System.out.println(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", "Sliden"));
+                System.out.println(langData.get("main_status_get_mylist_assembly").replaceAll("#player#", outputMode));
             }
 
-            for (int i = 0; i < size; i++){
+            try (HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2)
+                    .followRedirects(HttpClient.Redirect.ALWAYS)
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .build()) {
 
-                String[] split1 = split[i].split("\\.");
-                String newFileName = String.format("%08d", i) + "." + split1[split1.length - 1];
+                for (int i = 0; i < size; i++){
+                    if (!split[i].startsWith("http")){
+                        String[] split1 = split[i].split("\\.");
+                        String newFileName = String.format("%08d", i) + "." + split1[split1.length - 1];
 
-                FileWrite_binary("./temp/"+newFileName, FileRead_binary(split[i]));
+                        FileWrite_binary("./temp/"+newFileName, FileRead_binary(split[i]));
+                    } else {
+                        HttpRequest request = HttpRequest.newBuilder()
+                                .uri(new URI(split[i]))
+                                .headers("User-Agent", UserAgent)
+                                .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                                .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
+                                .GET()
+                                .build();
+                        HttpResponse<byte[]> send = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                        String contentType = null;
+                        if (send.headers().firstValue("Content-Type").isPresent()) {
+                            contentType = send.headers().firstValue("Content-Type").get();
+                        }
+                        if (send.headers().firstValue("content-type").isPresent()) {
+                            contentType = send.headers().firstValue("content-type").get();
+                        }
+
+                        if (contentType != null && contentType.startsWith("image")){
+
+                            String type = null;
+                            if (contentType.endsWith("png")){
+                                type = "png";
+                            }
+                            if (contentType.endsWith("jpeg")){
+                                type = "jpg";
+                            }
+                            if (contentType.endsWith("gif")){
+                                type = "gif";
+                            }
+                            if (contentType.endsWith("webp")){
+                                type = "webp";
+                            }
+
+                            String newFileName = String.format("%08d", i) + "." + type;
+
+                            FileWrite_binary("./temp/"+newFileName, send.body());
+                        }
+                    }
+                }
+
+            } catch (Exception e){
+                // e.printStackTrace();
             }
+
 
             try {
 
-                File file2 = new File("./Sliden.mp4");
+                File file2 = new File("./"+outputSiteName+".mp4");
                 if (file2.exists()){
                     file2.delete();
                 }
 
                 if (isWindows) {
 
-                    String command = "cd /D \""+new File("./temp").getCanonicalPath()+"\"\n"+ffmpegPass+" -framerate 1 -i %%08d."+kaku+" -c:v libx264 -r 60 -pix_fmt yuv420p ../Sliden.mp4";
+                    String command = "cd /D \""+new File("./temp").getCanonicalPath()+"\"\n"+ffmpegPass+" -framerate 1 -i %%08d."+kaku+" -c:v libx264 -r 60 -pix_fmt yuv420p ../"+outputMode+".mp4";
                     FileWrite_text("./temp.bat", command);
 
                     final Runtime runtime = Runtime.getRuntime();
@@ -1000,13 +1049,13 @@ public class Function {
 
                     //System.out.println(new String(exec0.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
                     //System.out.println(new String(exec0.getErrorStream().readAllBytes(), StandardCharsets.UTF_8));
-                    Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", "Sliden")));
+                    Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", outputMode)));
                 } else {
 
-                    ProcessBuilder pb = new ProcessBuilder(ffmpegPass, "-v", "quiet", "-framerate", "1", "-pattern_type", "glob", "-i", "'./temp/%08d.*'", "-c:v", "libx264", "-r", "60", "-pix_fmt", "yuv420p", "./Sliden.mp4");
+                    ProcessBuilder pb = new ProcessBuilder(ffmpegPass, "-v", "quiet", "-framerate", "1", "-pattern_type", "glob", "-i", "'./temp/%08d.*'", "-c:v", "libx264", "-r", "60", "-pix_fmt", "yuv420p", "./"+outputMode+".mp4");
                     Process process = pb.start();
                     process.waitFor();
-                    Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", "Sliden")));
+                    Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", outputMode)));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
