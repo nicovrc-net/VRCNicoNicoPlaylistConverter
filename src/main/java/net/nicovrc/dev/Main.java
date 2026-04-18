@@ -139,6 +139,7 @@ public class Main extends Application {
                             .build();
 
                     HttpResponse<byte[]> send = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                    System.out.println(send.statusCode());
                     if (send.statusCode() > 200 && send.statusCode() <= 399){
                         FileOutputStream stream = new FileOutputStream("./fonts/NotoSansCJK-Regular.ttc");
                         stream.write(send.body());

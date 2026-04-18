@@ -125,7 +125,7 @@ public class Function {
                     Matcher matcher2 = cookie_pattern2.matcher(s);
                     //System.out.println(s);
                     if (matcher1.find() && matcher1.group(1).equals("user_session") && !matcher1.group(2).equals("deleted")){
-                        System.out.println(matcher1.group(1));
+                        //System.out.println(matcher1.group(1));
                         cookie.setLogin(true);
                         cookie.setUser_session(matcher1.group(2));
 
