@@ -70,7 +70,7 @@ public class Function {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(NicoNicoLoginUrl))
-                    .headers("User-Agent", Function.UserAgent)
+                    .headers("User-Agent", UserAgent)
                     .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                     .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
                     .GET()
@@ -100,7 +100,7 @@ public class Function {
             //System.out.println("registrationActionTrackId="+cookie.getRegistrationActionTrackId()+"; nicosid="+cookie.getNicosid());
             request = HttpRequest.newBuilder()
                     .uri(new URI("https://account.nicovideo.jp/login/redirector?show_button_twitter=1&show_button_facebook=1&site=niconico&sec=header_pc&next_url=%2F"))
-                    .headers("User-Agent", Function.UserAgent)
+                    .headers("User-Agent", UserAgent)
                     .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                     .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
                     .headers("Content-Type", "application/x-www-form-urlencoded")
@@ -165,7 +165,7 @@ public class Function {
             //System.out.println("nicosid="+cookie.getNicosid()+"; mfa_session="+cookie.getMfa_session());
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(cookie.getMfw_url()))
-                    .headers("User-Agent", Function.UserAgent)
+                    .headers("User-Agent", UserAgent)
                     .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                     .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
                     .headers("Content-Type", "application/x-www-form-urlencoded")
@@ -190,7 +190,7 @@ public class Function {
 
                 request = HttpRequest.newBuilder()
                         .uri(new URI(location))
-                        .headers("User-Agent", Function.UserAgent)
+                        .headers("User-Agent", UserAgent)
                         .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                         .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
                         .headers("Cookie", "nicosid="+cookie.getNicosid())
@@ -354,7 +354,7 @@ public class Function {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(url))
-                    .headers("User-Agent", Function.UserAgent)
+                    .headers("User-Agent", UserAgent)
                     .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                     .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
                     .headers("Cookie", cookieText)
@@ -364,12 +364,12 @@ public class Function {
             //System.out.println(send.body());
             String jsonText = send.body();
 
-            Matcher matcher = Function.matcher_Json.matcher(jsonText);
+            Matcher matcher = matcher_Json.matcher(jsonText);
 
             if (matcher.find()){
-                json = Function.gson.fromJson("{" + matcher.group(1).replaceAll("&quot;", "\"") + "}", JsonElement.class);
+                json = gson.fromJson("{" + matcher.group(1).replaceAll("&quot;", "\"") + "}", JsonElement.class);
             } else {
-                matcher = Function.matcher_JsonNico.matcher(jsonText);
+                matcher = matcher_JsonNico.matcher(jsonText);
                 if (matcher.find()){
                     //System.out.println(matcher.group(1).replaceAll("&quot;", "\""));
                     json = gson.fromJson(matcher.group(1).replaceAll("&quot;", "\""), JsonElement.class);
@@ -404,7 +404,7 @@ public class Function {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(url))
-                    .headers("User-Agent", Function.UserAgent)
+                    .headers("User-Agent", UserAgent)
                     .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                     .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
                     .headers("Cookie", cookieText)
@@ -435,7 +435,7 @@ public class Function {
 
                         request = HttpRequest.newBuilder()
                                 .uri(new URI("https://nvapi.nicovideo.jp" + uri + "?pageSize=100&page="+page+"&sensitiveContents=mask"))
-                                .headers("User-Agent", Function.UserAgent)
+                                .headers("User-Agent", UserAgent)
                                 .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                                 .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
                                 .headers("Cookie", cookieText)
@@ -503,7 +503,7 @@ public class Function {
     public static void Convert(String inputText, String outputMode, String outputSiteName, Label status) throws Exception{
 
         if (!outputMode.equals("Sliden")){
-            String cookieText = Function.DecrypterText(Function.FileRead_text("./tools/cookie.txt"));
+            String cookieText = DecrypterText(FileRead_text("./tools/cookie.txt"));
 
             String[] split = inputText.split("\n");
             if (split.length == 0 || inputText.isEmpty()){
@@ -524,11 +524,11 @@ public class Function {
                     playListData.setTitle("動画");
                     playListData.setVideoURL(url);
                     list.add(playListData);
-                } else if (Function.mylist_url1.matcher(url).find()) {
+                } else if (mylist_url1.matcher(url).find()) {
                     playListData.setTitle("プレイリスト");
                     playListData.setVideoURL(url);
                     list.add(playListData);
-                } else if (Function.mylist_url2.matcher(url).find()) {
+                } else if (mylist_url2.matcher(url).find()) {
                     playListData.setTitle("プレイリスト");
                     playListData.setVideoURL(url);
                     list.add(playListData);
@@ -550,7 +550,7 @@ public class Function {
                 //System.out.println(data.getTitle() + " / " + data.getVideoURL());
                 if (data.getTitle().equals("動画")){
                     PlayListData tempData = new PlayListData();
-                    tempData.setTitle(Function.getVideoTitle(data.getVideoURL(), cookieText));
+                    tempData.setTitle(getVideoTitle(data.getVideoURL(), cookieText));
                     if (startURL.startsWith("https://testniconicomment")){
                         tempData.setVideoURL(startURL.replaceAll("#id", data.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]));
                     } else {
@@ -566,7 +566,7 @@ public class Function {
                     } else {
                         System.out.println(langData.get("main_status_get_mylist"));
                     }
-                    NicoNicoPlayList playList = Function.getPlayList(data.getVideoURL(), cookieText);
+                    NicoNicoPlayList playList = getPlayList(data.getVideoURL(), cookieText);
                     if (list.size() == 1){
                         playlistTitle = playList.getPlaylistTitle();
                     }
@@ -629,7 +629,7 @@ public class Function {
                 }
 
                 json.setTracks(iwaSyncTracks);
-                jsonText = Function.gson.toJson(json);
+                jsonText = gson.toJson(json);
             } else if (outputMode.equals("iwaSync ("+langData.get("main_prefab")+")")){
 
                 net.nicovrc.dev.prefab.iwaSync iwaSync = new net.nicovrc.dev.prefab.iwaSync();
@@ -665,7 +665,7 @@ public class Function {
 
                 yamaPlayer.setPlaylists(playlists);
 
-                jsonText = Function.gson.toJson(yamaPlayer);
+                jsonText = gson.toJson(yamaPlayer);
 
             } else if (outputMode.equals("YamaPlayer (v1,"+langData.get("main_prefab")+")")){
 
@@ -718,7 +718,7 @@ public class Function {
                 }
 
                 vizVid.setEntries(entries);
-                jsonText = Function.gson.toJson(vizVid);
+                jsonText = gson.toJson(vizVid);
 
             } else if (outputMode.equals("あやぷれいやー2 ("+langData.get("main_json")+")")){
 
@@ -765,7 +765,7 @@ public class Function {
                 ayaplayer.setTargets_base64(intArrayToBase64(temp3));
 
 
-                jsonText = Function.gson.toJson(ayaplayer);
+                jsonText = gson.toJson(ayaplayer);
 
                 backup.setTitle("Root");
                 backup.setType("folder");
@@ -787,7 +787,7 @@ public class Function {
                     i++;
                 }
 
-                jsonBackupText = Function.gson.toJson(backup);
+                jsonBackupText = gson.toJson(backup);
 
             }
 
@@ -852,7 +852,7 @@ public class Function {
 
                         HttpRequest request = HttpRequest.newBuilder()
                                 .uri(new URI("https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"))
-                                .headers("User-Agent", Function.UserAgent)
+                                .headers("User-Agent", UserAgent)
                                 .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                                 .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
                                 .GET()
@@ -905,7 +905,7 @@ public class Function {
                     Process process = pb.start();
                     process.waitFor();
 
-                    Matcher matcher = Function.matcher_ffmpeg.matcher(new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
+                    Matcher matcher = matcher_ffmpeg.matcher(new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
                     if (matcher.find()){
                         ffmpegPass = "/"+matcher.group(1)+"/ffmpeg";
                     } else {
@@ -922,7 +922,7 @@ public class Function {
                 }
             }
 
-            if (!Function.matcher_imagefile.matcher(inputText).find()){
+            if (!matcher_imagefile.matcher(inputText).find()){
                 if (status != null){
                     Platform.runLater(()->status.setText(langData.get("main_status_sliden_error")));
                 } else {
