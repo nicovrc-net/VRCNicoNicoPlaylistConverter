@@ -281,17 +281,14 @@ public class Function {
 
     public static String DecrypterText(String text) throws Exception {
 
-        if (isWindows){
-            key_str = new NTSystem().getName();
-            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
-        } else if (System.getProperty("os.name").toLowerCase(Locale.ROOT).equals("linux")){
-            key_str = new UnixSystem().getUsername();
+        if (new File("./tools/key.txt").exists()){
+            key_str = FileRead_text("./tools/key.txt");
         } else {
-            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
+            key_str = UUID.randomUUID().toString() + "-" + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)));
+            FileWrite_text("./tools/key.txt", key_str);
         }
-
-        final IvParameterSpec iv = new IvParameterSpec(Arrays.copyOf(key_str.getBytes(StandardCharsets.UTF_8), 16));
-        final String ENCRYPT_KEY = key_str.substring(0, 1) + key_str.substring(2, 3) + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        final IvParameterSpec iv = new IvParameterSpec(Arrays.copyOf(Base64.getEncoder().encode(key_str.getBytes(StandardCharsets.UTF_8)), 16));
+        final String ENCRYPT_KEY = key_str;
         final SecretKeySpec key = new SecretKeySpec(Arrays.copyOf(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8), 32), "AES");
 
         Cipher decrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -305,17 +302,15 @@ public class Function {
 
     public static String EncrypterText(String text) throws Exception {
 
-        if (isWindows){
-            key_str = new NTSystem().getName();
-            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
-        } else if (System.getProperty("os.name").toLowerCase(Locale.ROOT).equals("linux")){
-            key_str = new UnixSystem().getUsername();
+        if (new File("./tools/key.txt").exists()){
+            key_str = FileRead_text("./tools/key.txt");
         } else {
-            key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
+            key_str = UUID.randomUUID().toString() + "-" + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)));
+            FileWrite_text("./tools/key.txt", key_str);
         }
 
-        final IvParameterSpec iv = new IvParameterSpec(Arrays.copyOf(key_str.getBytes(StandardCharsets.UTF_8), 16));
-        final String ENCRYPT_KEY = key_str.substring(0, 1) + key_str.substring(2, 3) + new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        final IvParameterSpec iv = new IvParameterSpec(Arrays.copyOf(Base64.getEncoder().encode(key_str.getBytes(StandardCharsets.UTF_8)), 16));
+        final String ENCRYPT_KEY = key_str;
         final SecretKeySpec key = new SecretKeySpec(Arrays.copyOf(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8), 32), "AES");
 
         Cipher encrypter = Cipher.getInstance("AES/CBC/PKCS5Padding");
