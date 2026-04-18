@@ -54,6 +54,32 @@ jobs:
           name: batch2
           path: ./run-batch/VRCNicoNicoPlaylist_start_linux.sh
 
+      - name: Upload Readme
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: readme
+          path: ./package/readme.txt
+      - name: Upload Readme (en)
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: readme_en
+          path: ./package/readme_en.txt
+      - name: Upload Readme (ko)
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: readme
+          path: ./package/readme_ko.txt
+      - name: Upload Readme (zh-hans)
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: readme_zh-hans
+          path: ./package/readme_zh-hans.txt
+      - name: Upload Readme (zh-hant)
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: readme_zh-hant
+          path: ./package/readme_zh-hant.txt
+
   release:
     needs: [build-21]
     runs-on: ubuntu-24.04
@@ -79,12 +105,39 @@ jobs:
         with:
           name: batch2
 
+      - name: Download Readme
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: readme
+
+      - name: Download Readme (en)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: readme_en
+      - name: Download Readme (ko)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: readme_ko
+      - name: Download Readme (zh-hans)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: readme_zh-hans
+      - name: Download Readme (zh-hant)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: readme_zh-hant
+
       - name: Create Release Package
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           mv ./VRCNicoNicoPlaylist_start.bat start.bat
           mv ./VRCNicoNicoPlaylist_start_linux.sh start_forLinux.sh
-          zip VRCNicoNicoPlaylistConverter.zip VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar start.bat start_forLinux.sh
+          zip VRCNicoNicoPlaylistConverter.zip VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar start.bat start_forLinux.sh readme.txt readme_en.txt readme_ko.txt readme_zh-hans.txt readme_zh-hant.txt
         shell: bash
 
       - name: Linux Bash Setup Test
