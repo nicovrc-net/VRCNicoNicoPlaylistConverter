@@ -545,7 +545,8 @@ public class Main extends Application {
                     "YamaPlayer (v2,"+Function.langData.get("main_prefab")+")",
                     "VizVid ("+Function.langData.get("main_json")+")",
                     "あやぷれいやー2 ("+Function.langData.get("main_json")+")",
-                    "Sliden"
+                    "Sliden",
+                    "UnaSlides"
             );
             output_combo.setPrefWidth(300);
             output_combo.setOnAction((event)->{
