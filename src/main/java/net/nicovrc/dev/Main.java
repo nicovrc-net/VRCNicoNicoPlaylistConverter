@@ -19,8 +19,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
@@ -75,20 +73,8 @@ public class Main extends Application {
                     if (!new File("./lang").exists()){
                         new File("./lang").mkdir();
                     }
-                    try (FileWriter file1 = new FileWriter("./lang/ja.txt");
-                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
-
-                        pw.print(send.body());
-                    } catch (Exception e){
-                        //e.printStackTrace();
-                    }
-                    try (FileWriter file1 = new FileWriter("./lang/default.txt");
-                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
-
-                        pw.print(send.body());
-                    } catch (Exception e){
-                        //e.printStackTrace();
-                    }
+                    Function.FileWrite_text("./lang/ja.txt", send.body());
+                    Function.FileWrite_text("./lang/default.txt", send.body());
                 } catch (Exception e){
                     e.printStackTrace();
                 }
@@ -138,10 +124,7 @@ public class Main extends Application {
 
                                 HttpResponse<byte[]> send2 = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
                                 if (send2.statusCode() > 200 && send2.statusCode() <= 399){
-                                    FileOutputStream stream = new FileOutputStream("./fonts/"+filename.split("/")[filename.split("/").length - 1]);
-                                    stream.write(send2.body());
-                                    stream.close();
-                                    stream = null;
+                                    Function.FileWrite_binary("./fonts/"+filename.split("/")[filename.split("/").length - 1], send2.body());
                                 }
                             }
                         }
@@ -352,14 +335,7 @@ public class Main extends Application {
             sub_stage.showAndWait();
 
             if (cookie[0].isLogin()){
-                try (FileWriter file1 = new FileWriter("./tools/cookie.txt");
-                     PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
-
-                    pw.print(Function.EncrypterText("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session()));
-                } catch (Exception e){
-                    e.printStackTrace();
-                    return;
-                }
+                Function.FileWrite_text("./tools/cookie.txt", Function.EncrypterText("nicosid="+cookie[0].getNicosid()+"; user_session="+cookie[0].getUser_session()));
                 System.out.println("[Info] "+Function.langData.get("niconico_login_success"));
             }
         } else {

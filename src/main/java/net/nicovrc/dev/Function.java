@@ -224,6 +224,48 @@ public class Function {
 
         return cookie;
     }
+    public static String FileRead_text(String filePass){
+        String Text = null;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePass), StandardCharsets.UTF_8))){
+            String str;
+            StringBuilder sb = new StringBuilder();
+            while ((str = reader.readLine()) != null) {
+                sb.append(str).append("\n");
+            }
+            Text = sb.substring(0, Text.length() - 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Text;
+    }
+
+    public static byte[] FileRead_binary(String filePass){
+        try (FileInputStream fis = new FileInputStream(filePass)) {
+
+            return fis.readAllBytes();
+        } catch (Exception e){
+            return null;
+        }
+    }
+
+    public static void FileWrite_text(String filePass, String text){
+        try (FileWriter file1 = new FileWriter(filePass);
+             PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+
+            pw.print(text);
+        } catch (Exception e){
+            //e.printStackTrace();
+        }
+    }
+
+    public static void FileWrite_binary(String filePass, byte[] content){
+        try (FileOutputStream stream = new FileOutputStream(filePass)){
+            stream.write(content);
+        } catch (Exception e){
+            //e.printStackTrace();
+        }
+    }
 
     public static String DecrypterText(String text) throws Exception {
 
@@ -347,22 +389,6 @@ public class Function {
         }
 
         return str;
-    }
-
-    public static String FileRead_text(String filePass){
-        String Text = null;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePass), StandardCharsets.UTF_8))){
-            String str;
-            StringBuilder sb = new StringBuilder();
-            while ((str = reader.readLine()) != null) {
-                sb.append(str).append("\n");
-            }
-            Text = sb.substring(0, Text.length() - 1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return Text;
     }
 
     public static NicoNicoPlayList getPlayList(String url, String cookieText){
@@ -926,20 +952,11 @@ public class Function {
             }
 
             for (int i = 0; i < size; i++){
-                try (FileInputStream fis = new FileInputStream(split[i])){
 
-                    byte[] bytes = fis.readAllBytes();
+                String[] split1 = split[i].split("\\.");
+                String newFileName = String.format("%08d", i) + "." + split1[split1.length - 1];
 
-                    String[] split1 = split[i].split("\\.");
-                    String newFileName = String.format("%08d", i) + "." + split1[split1.length - 1];
-
-                    try (FileOutputStream fos = new FileOutputStream("./temp/"+newFileName)){
-                        fos.write(bytes);
-                    }
-
-                } catch (Exception e){
-                    return;
-                }
+                FileWrite_binary("./temp/"+newFileName, FileRead_binary(split[i]));
             }
 
             try {
@@ -952,13 +969,7 @@ public class Function {
                 if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")) {
 
                     String command = "cd /D \""+new File("./temp").getCanonicalPath()+"\"\n"+ffmpegPass+" -framerate 1 -i %%08d."+kaku+" -c:v libx264 -r 60 -pix_fmt yuv420p ../Sliden.mp4";
-                    try (FileWriter f = new FileWriter("./temp.bat");
-                         PrintWriter pw = new PrintWriter(new BufferedWriter(f))){
-
-                        pw.print(command);
-                    } catch (Exception e){
-                        //e.printStackTrace();
-                    }
+                    FileWrite_text("./temp.bat", command);
 
                     final Runtime runtime = Runtime.getRuntime();
                     final Process exec0 = runtime.exec(new String[]{"./temp.bat"});
