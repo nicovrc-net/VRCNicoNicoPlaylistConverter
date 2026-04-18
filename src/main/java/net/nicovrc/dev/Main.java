@@ -573,6 +573,60 @@ public class Main extends Application {
                 }
             });
 
+            if (new File("./fonts/NotoSansCJK-Regular.ttc").exists()){
+                output_combo.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSansCJK-Regular.ttc'),ormat('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font: 16px 'noto-cjk';"
+                );
+                site_select.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSansCJK-Regular.ttc'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 16px 'noto-cjk';"
+                );
+
+            } else if (new File("./fonts/NotoSansCJK-Regular.ttf").exists()){
+                output_combo.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSansCJK-Regular.ttf'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 16px 'noto-cjk';"
+                );
+                site_select.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSansCJK-Regular.ttf'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 16px 'noto-cjk';"
+                );
+            } else if (new File("./fonts/NotoSans"+fontLang+"-Medium.ttf").exists()){
+                output_combo.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSans"+fontLang+"-Medium.ttf'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 16px 'noto-cjk';"
+                );
+                site_select.setStyle("@font-face {\n" +
+                        "  font-family: 'noto-cjk';\n" +
+                        "  src: url('./fonts/NotoSans"+fontLang+"-Medium.ttf'),format('truetype');\n" +
+                        "  font-weight: normal;\n" +
+                        "  font-style: normal;\n" +
+                        "}\n" +
+                        "-fx-font-family: 16px 'noto-cjk';"
+                );
+            }
+
             main_root.getChildren().add(output_combo);
 
             Label site_select_text = new Label(Function.langData.get("main_output_site"));
