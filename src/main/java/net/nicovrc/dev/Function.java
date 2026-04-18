@@ -34,6 +34,8 @@ public class Function {
 
     public static final String Version = "0.4.0-beta.1";
 
+    public static final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
+
     public static final String UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0 VRCNicoNicoPlaylistConverter/"+Version;
     public static final String NicoNicoLoginUrl = "https://account.nicovideo.jp/login?site=niconico&next_url=%2F&sec=header_pc&cmnhd_ref=device%3Dpc%26site%3Dniconico%26pos%3Dheader_login%26page%3Dtop";
     public static final String LoginAfterUrl = "https://www.nicovideo.jp/";
@@ -269,7 +271,7 @@ public class Function {
 
     public static String DecrypterText(String text) throws Exception {
 
-        if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")){
+        if (isWindows){
             key_str = new NTSystem().getName();
             key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
         } else if (System.getProperty("os.name").toLowerCase(Locale.ROOT).equals("linux")){
@@ -293,7 +295,7 @@ public class Function {
 
     public static String EncrypterText(String text) throws Exception {
 
-        if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")){
+        if (isWindows){
             key_str = new NTSystem().getName();
             key_str = (!key_str.isEmpty() ? key_str.substring(0, 1) : "") + (key_str.length() >= 3 ? key_str.substring(2, 3) : "") + (key_str.length() >= 5 ? key_str.substring(4, 5) : "") + (key_str.length() >= 7 ? key_str.substring(6, 7) : "");
         } else if (System.getProperty("os.name").toLowerCase(Locale.ROOT).equals("linux")){
@@ -828,7 +830,7 @@ public class Function {
             // Sliden
             // ffmpeg
             String ffmpegPass = "";
-            if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")) {
+            if (isWindows) {
                 File ffmpeg_file = new File("C:/Windows/ffmpeg.exe");
                 if (!ffmpeg_file.exists()){
                     ffmpeg_file = new File("C:/Windows/System32/ffmpeg.exe");
@@ -966,7 +968,7 @@ public class Function {
                     file2.delete();
                 }
 
-                if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")) {
+                if (isWindows) {
 
                     String command = "cd /D \""+new File("./temp").getCanonicalPath()+"\"\n"+ffmpegPass+" -framerate 1 -i %%08d."+kaku+" -c:v libx264 -r 60 -pix_fmt yuv420p ../Sliden.mp4";
                     FileWrite_text("./temp.bat", command);

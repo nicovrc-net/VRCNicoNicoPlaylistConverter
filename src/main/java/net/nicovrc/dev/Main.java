@@ -96,7 +96,7 @@ public class Main extends Application {
                     .connectTimeout(Duration.ofSeconds(5))
                     .build()) {
 
-                if (System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows")){
+                if (Function.isWindows){
                     HttpRequest request = HttpRequest.newBuilder()
                             .uri(new URI("https://fonts.google.com/download/list?family=Noto%20Sans%20JP%2CNoto%20Sans%20KR%2CNoto%20Sans%20SC%2CNoto%20Sans%20TC"))
                             .headers("User-Agent", Function.UserAgent)
@@ -380,9 +380,8 @@ public class Main extends Application {
                 System.out.println("[Info] "+Function.langData.get("update_check_fail"));
             } else {
                 System.out.println("[Info] "+Function.langData.get("update_check_found"));
-                NTSystem ntSystem = new NTSystem();
 
-                if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
+                if (isWindowsBatchStart || Function.isWindows) {
                     File c_file = new File("./");
                     final String CurrentFolderPass = c_file.getCanonicalPath().replaceAll("\\\\", "/");
 
@@ -395,16 +394,7 @@ public class Main extends Application {
                         update_file.delete();
                     }
 
-                    FileWriter file1 = new FileWriter("./tools/update1.bat");
-                    PrintWriter pw = new PrintWriter(new BufferedWriter(file1));
-                    pw.print("start ./tools/update2.bat".replaceAll("\\./", CurrentFolderPass + "/"));
-                    pw.close();
-                    file1.close();
-                    pw = null;
-                    file1 = null;
-
-                    file1 = new FileWriter("./tools/update2.bat");
-                    pw = new PrintWriter(new BufferedWriter(file1));
+                    Function.FileWrite_text("./tools/update1.bat", "start ./tools/update2.bat".replaceAll("\\./", CurrentFolderPass + "/"));
                     String str = """
                         curl https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases/download/#ver#/VRCNicoNicoPlaylistConverter.zip -L --output ./tools/VRCNicoNicoPlaylistConverter.zip
                         tar -xf ./tools/VRCNicoNicoPlaylistConverter.zip -C ./tools\\
@@ -416,11 +406,7 @@ public class Main extends Application {
                         move ./tools\\lang ./
                         exit
                         """;
-                    pw.print(str.replaceAll("#ver#", new_version).replaceAll("\\./", CurrentFolderPass.replaceAll("/", "\\\\\\\\") + "\\\\"));
-                    pw.close();
-                    file1.close();
-                    pw = null;
-                    file1 = null;
+                    Function.FileWrite_text("./tools/update2.bat", str.replaceAll("#ver#", new_version).replaceAll("\\./", CurrentFolderPass.replaceAll("/", "\\\\\\\\") + "\\\\"));
                 }
 
                 sub_stage.setResizable(false);
@@ -474,7 +460,7 @@ public class Main extends Application {
                 update_label4.setFont(DefaultFont);
                 root.getChildren().add(update_label4);
 
-                if (isWindowsBatchStart || !ntSystem.getName().isEmpty()) {
+                if (isWindowsBatchStart || Function.isWindows) {
                     Button update_button = new Button(Function.langData.get("update_notify_update"));
                     update_button.setLayoutX(10);
                     update_button.setLayoutY(120);
