@@ -564,59 +564,14 @@ public class Main extends Application {
                 }
             });
 
-            if (new File("./fonts/NotoSansCJK-Regular.ttc").exists()){
-                output_combo.setStyle("@font-face {\n" +
-                        "  font-family: 'noto-cjk';\n" +
-                        "  src: url('./fonts/NotoSansCJK-Regular.ttc'),ormat('truetype');\n" +
-                        "  font-weight: normal;\n" +
-                        "  font-style: normal;\n" +
-                        "}\n" +
-                        "-fx-font: 'noto-cjk';"
-                );
-                site_select.setStyle("@font-face {\n" +
-                        "  font-family: 'noto-cjk';\n" +
-                        "  src: url('./fonts/NotoSansCJK-Regular.ttc'),format('truetype');\n" +
-                        "  font-weight: normal;\n" +
-                        "  font-style: normal;\n" +
-                        "}\n" +
-                        "-fx-font-family: 'noto-cjk';"
-                );
-
-            } else if (new File("./fonts/NotoSansCJK-Regular.ttf").exists()){
-                output_combo.setStyle("@font-face {\n" +
-                        "  font-family: 'noto-cjk';\n" +
-                        "  src: url('./fonts/NotoSansCJK-Regular.ttf'),format('truetype');\n" +
-                        "  font-weight: normal;\n" +
-                        "  font-style: normal;\n" +
-                        "}\n" +
-                        "-fx-font-family: 'noto-cjk';"
-                );
-                site_select.setStyle("@font-face {\n" +
-                        "  font-family: 'noto-cjk';\n" +
-                        "  src: url('./fonts/NotoSansCJK-Regular.ttf'),format('truetype');\n" +
-                        "  font-weight: normal;\n" +
-                        "  font-style: normal;\n" +
-                        "}\n" +
-                        "-fx-font-family: 'noto-cjk';"
-                );
-            } else if (new File("./fonts/NotoSans"+fontLang+"-Medium.ttf").exists()){
-                output_combo.setStyle("@font-face {\n" +
-                        "  font-family: 'noto-cjk';\n" +
-                        "  src: url('./fonts/NotoSans"+fontLang+"-Medium.ttf'),format('truetype');\n" +
-                        "  font-weight: normal;\n" +
-                        "  font-style: normal;\n" +
-                        "}\n" +
-                        "-fx-font-family: 'noto-cjk';"
-                );
-                site_select.setStyle("@font-face {\n" +
-                        "  font-family: 'noto-cjk';\n" +
-                        "  src: url('./fonts/NotoSans"+fontLang+"-Medium.ttf'),format('truetype');\n" +
-                        "  font-weight: normal;\n" +
-                        "  font-style: normal;\n" +
-                        "}\n" +
-                        "-fx-font-family: 'noto-cjk';"
-                );
-            }
+            output_combo.setCellFactory(list ->new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                    setFont(DefaultFont);
+                }
+            });
 
             main_root.getChildren().add(output_combo);
 
@@ -633,6 +588,14 @@ public class Main extends Application {
                     "tool.suzumebachi.xyz"
             );
             site_select.setPrefWidth(300);
+            site_select.setCellFactory(list ->new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                    setFont(DefaultFont);
+                }
+            });
             main_root.getChildren().add(site_select);
 
             Label status = new Label(Function.langData.get("main_status_idle"));
