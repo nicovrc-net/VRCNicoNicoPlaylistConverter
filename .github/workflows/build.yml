@@ -67,7 +67,7 @@ jobs:
       - name: Upload Readme (ko)
         uses: actions/upload-artifact@v7.0.0
         with:
-          name: readme
+          name: readme_ko
           path: ./package/readme_ko.txt
       - name: Upload Readme (zh-hans)
         uses: actions/upload-artifact@v7.0.0
@@ -252,3 +252,10 @@ jobs:
         with:
           name: |
             jar
+            batch1
+            batch2
+            readme
+            readme_en
+            readme_ko
+            readme_zh-hans
+            readme_zh-hant
