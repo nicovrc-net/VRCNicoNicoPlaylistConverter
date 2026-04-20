@@ -54,6 +54,18 @@ jobs:
           name: batch2
           path: ./run-batch/VRCNicoNicoPlaylist_start_linux.sh
 
+      - name: Upload BatchFile (PowerShell)
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: batch3
+          path: ./run-batch/start.ps1
+
+      - name: Upload BatchFile (PowerShell)
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: batch4
+          path: ./run-batch/start2.bat
+
       - name: Upload Readme
         uses: actions/upload-artifact@v7.0.0
         with:
@@ -105,6 +117,18 @@ jobs:
         with:
           name: batch2
 
+      - name: Download BatchFile (PowerShell)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: batch3
+
+      - name: Download BatchFile (PowerShell)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: batch4
+
       - name: Download Readme
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/download-artifact@v8.0.1
@@ -137,7 +161,7 @@ jobs:
         run: |
           mv ./VRCNicoNicoPlaylist_start.bat start.bat
           mv ./VRCNicoNicoPlaylist_start_linux.sh start_forLinux.sh
-          zip VRCNicoNicoPlaylistConverter.zip VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar start.bat start_forLinux.sh readme.txt readme_en.txt readme_ko.txt readme_zh-hans.txt readme_zh-hant.txt
+          zip VRCNicoNicoPlaylistConverter.zip VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar start.bat start2.bat start.ps1 start_forLinux.sh readme.txt readme_en.txt readme_ko.txt readme_zh-hans.txt readme_zh-hant.txt
         shell: bash
 
       - name: Linux Bash Setup Test
@@ -209,6 +233,7 @@ jobs:
           body: |
             - 出力先に UnaSlides 追加
             - 画像URLも指定できるように
+            - 起動バッチにPowerShell版追加
 
           draft: false
           prerelease: true
@@ -254,6 +279,8 @@ jobs:
             jar
             batch1
             batch2
+            batch3
+            batch4
             readme
             readme_en
             readme_ko
