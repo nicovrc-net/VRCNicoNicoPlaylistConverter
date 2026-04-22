@@ -1,33 +1,20 @@
 if ((Test-Path '.\tools')){
-  if ( -not (Test-Path '.\tools\jdk-21.0.2')) {
-    Invoke-WebRequest -Uri https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_windows-x64_bin.zip -OutFile ./tools/openjdk-21.0.2_windows-x64_bin.zip
-    Expand-Archive -Path ./tools/openjdk-21.0.2_windows-x64_bin.zip -DestinationPath ./tools/
-  }
-
-  if ( -not (Test-Path '.\tools\javafx-sdk-21.0.10')) {
-    Invoke-WebRequest -Uri https://download2.gluonhq.com/openjfx/21.0.10/openjfx-21.0.10_windows-x64_bin-sdk.zip -OutFile ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip
-    Expand-Archive -Path ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip -DestinationPath ./tools/
-  }
-
-  Write-Output "Starting..."
-  .\tools\jdk-21.0.2\bin\java.exe --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
-} else {
-  Write-Output "Setup..."
-  New-Item -ItemType Directory -Path ./tools
-  if ( -not (Test-Path '.\tools\jdk-21.0.2')) {
-    Invoke-WebRequest -Uri https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_windows-x64_bin.zip -OutFile ./tools/openjdk-21.0.2_windows-x64_bin.zip
-    Expand-Archive -Path ./tools/openjdk-21.0.2_windows-x64_bin.zip -DestinationPath ./tools/
-  }
-
-  if ( -not (Test-Path '.\tools\javafx-sdk-21.0.10')) {
-    Invoke-WebRequest -Uri https://download2.gluonhq.com/openjfx/21.0.10/openjfx-21.0.10_windows-x64_bin-sdk.zip -OutFile ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip
-    Expand-Archive -Path ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip -DestinationPath ./tools/
-  }
-
-  Write-Output "Starting..."
-  .\tools\jdk-21.0.2\bin\java.exe --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
-
+    New-Item -ItemType Directory -Path ./tools
 }
+
+if ( -not (Test-Path '.\tools\jdk-21.0.2')) {
+    Invoke-WebRequest -Uri https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_windows-x64_bin.zip -OutFile ./tools/openjdk-21.0.2_windows-x64_bin.zip
+    Expand-Archive -Path ./tools/openjdk-21.0.2_windows-x64_bin.zip -DestinationPath ./tools/
+}
+
+if ( -not (Test-Path '.\tools\javafx-sdk-21.0.10')) {
+    Invoke-WebRequest -Uri https://download2.gluonhq.com/openjfx/21.0.10/openjfx-21.0.10_windows-x64_bin-sdk.zip -OutFile ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip
+    Expand-Archive -Path ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip -DestinationPath ./tools/
+}
+
+Write-Output "Starting..."
+.\tools\jdk-21.0.2\bin\java.exe --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
+
 
 
 
