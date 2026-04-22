@@ -426,6 +426,8 @@ public class Main extends Application {
                         Remove-Item ./start2.bat
                         Remove-Item ./start.ps1
                         Remove-Item ./lang -Recurse -Force
+                        Move-Item -Path ./tools/key.txt ./key.txt
+                        Move-Item -Path ./tools/cookie.txt ./cookie.txt
                         Move-Item -Path ./tools/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar -Destination ./
                         Move-Item -Path ./tools/start.bat -Destination ./
                         Move-Item -Path ./tools/start2.bat -Destination ./
@@ -433,8 +435,11 @@ public class Main extends Application {
                         New-Item -ItemType Directory -Path ./lang
                         Move-Item -Path ./tools/lang/* -Destination ./lang
                         
-                        
                         Remove-Item ./tools -Recurse -Force
+                        New-Item -ItemType Directory -Path ./tools/
+                        Move-Item -Path ./key.txt ./tools/key.txt
+                        Move-Item -Path ./cookie.txt ./tools/cookie.txt
+                        
                         exit
                         """;
                     Function.FileWrite_text("./tools/update.ps1", str.replaceAll("#ver#", new_version));
