@@ -2,8 +2,6 @@ package net.nicovrc.dev;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.sun.security.auth.module.NTSystem;
-import com.sun.security.auth.module.UnixSystem;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
@@ -34,7 +32,7 @@ import java.util.regex.Pattern;
 
 public class Function {
 
-    public static final String Version = "0.5.0-rc.1";
+    public static final String Version = "1.0.0";
 
     public static final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
 

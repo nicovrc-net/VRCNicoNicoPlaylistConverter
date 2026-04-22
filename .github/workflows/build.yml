@@ -239,12 +239,10 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - アップデート処理バッチをPowerShell化
-            - 起動パッチをPowershell版に統一
-            - 出力先を指定できるように
+            - バグ修正
 
           draft: false
-          prerelease: true
+          prerelease: false
 
       - name: Upload JarFile
         if: startsWith(github.ref, 'refs/tags/')
