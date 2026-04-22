@@ -241,6 +241,7 @@ jobs:
           body: |
             - アップデート処理バッチをPowerShell化
             - 起動パッチをPowershell版に統一
+            - 出力先を指定できるように
 
           draft: false
           prerelease: true
