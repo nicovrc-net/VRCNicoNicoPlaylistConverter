@@ -391,28 +391,35 @@ public class Main extends Application {
                     File c_file = new File("./");
                     final String CurrentFolderPass = c_file.getCanonicalPath().replaceAll("\\\\", "/");
 
-                    File update_file = new File("./tools/update1.bat");
+                    File update_file = new File("./tools/update.bat");
                     if (update_file.exists()) {
                         update_file.delete();
                     }
-                    update_file = new File("./tools/update2.bat");
+                    update_file = new File("./tools/update.ps1");
                     if (update_file.exists()) {
                         update_file.delete();
                     }
 
-                    Function.FileWrite_text("./tools/update1.bat", "start ./tools/update2.bat".replaceAll("\\./", CurrentFolderPass + "/"));
+                    Function.FileWrite_text("./tools/update.bat", "@echo off\npowershell -NoProfile -ExecutionPolicy Unrestricted ./update.ps1\nexit".replaceAll("\\./", CurrentFolderPass + "/"));
                     String str = """
-                        curl https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases/download/#ver#/VRCNicoNicoPlaylistConverter.zip -L --output ./tools/VRCNicoNicoPlaylistConverter.zip
-                        tar -xf ./tools/VRCNicoNicoPlaylistConverter.zip -C ./tools\\
-                        del ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
-                        del ./start.bat
-                        del /Q ./lang
-                        move ./tools\\VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar ./
-                        move ./tools\\start.bat ./
-                        move ./tools\\lang ./
+                        Invoke-WebRequest -Uri https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases/download/#ver#/VRCNicoNicoPlaylistConverter.zip -OutFile ./tools/VRCNicoNicoPlaylistConverter.zip
+                        Expand-Archive -Path ./tools/VRCNicoNicoPlaylistConverter.zip -DestinationPath ./tools/
+                        Remove-Item ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
+                        Remove-Item ./start.bat
+                        Remove-Item ./start2.bat
+                        Remove-Item ./start.ps1
+                        Remove-Item ./lang -Recurse -Force
+                        Move-Item -Path ./tools\\VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar -Destination ./
+                        Move-Item -Path ./tools\\start.bat -Destination ./
+                        Move-Item -Path ./tools\\start2.bat -Destination ./
+                        Move-Item -Path ./tools\\start.ps1 -Destination ./
+                        New-Item -ItemType Directory -Path ./lang
+                        Move-Item -Path ./lang/* -Destination ./lang
                         exit
+                        
+                        
                         """;
-                    Function.FileWrite_text("./tools/update2.bat", str.replaceAll("#ver#", new_version).replaceAll("\\./", CurrentFolderPass.replaceAll("/", "\\\\\\\\") + "\\\\"));
+                    Function.FileWrite_text("./tools/update.ps1", str.replaceAll("#ver#", new_version).replaceAll("\\./", CurrentFolderPass.replaceAll("/", "\\\\\\\\") + "\\\\"));
                 }
 
                 sub_stage.setResizable(false);
@@ -431,11 +438,11 @@ public class Main extends Application {
                 button.setFont(DefaultFont);
                 button.setOnAction(e -> {
                     sub_stage.close();
-                    File update_file = new File("./tools/update1.bat");
+                    File update_file = new File("./tools/update.bat");
                     if (update_file.exists()) {
                         update_file.delete();
                     }
-                    update_file = new File("./tools/update2.bat");
+                    update_file = new File("./tools/update.ps1");
                     if (update_file.exists()) {
                         update_file.delete();
                     }
@@ -474,7 +481,7 @@ public class Main extends Application {
                     update_button.setOnAction(e -> {
                         try {
                             final Runtime runtime = Runtime.getRuntime();
-                            final Process exec0 = runtime.exec(new String[]{"./tools/update1.bat"});
+                            final Process exec0 = runtime.exec(new String[]{"./tools/update.bat"});
                             Thread.ofVirtual().start(() -> {
                                 try {
                                     Thread.sleep(5000L);
@@ -497,6 +504,15 @@ public class Main extends Application {
 
                 sub_stage.setScene(scene);
                 sub_stage.showAndWait();
+
+                File update_file = new File("./tools/update.bat");
+                if (update_file.exists()) {
+                    update_file.delete();
+                }
+                update_file = new File("./tools/update.ps1");
+                if (update_file.exists()) {
+                    update_file.delete();
+                }
             }
 
             // 初期画面

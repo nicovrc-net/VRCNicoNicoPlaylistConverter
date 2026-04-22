@@ -231,9 +231,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - 出力先に UnaSlides 追加
-            - 画像URLも指定できるように
-            - 起動バッチにPowerShell版追加
+            - アップデート処理バッチをPowerShell化
 
           draft: false
           prerelease: true
