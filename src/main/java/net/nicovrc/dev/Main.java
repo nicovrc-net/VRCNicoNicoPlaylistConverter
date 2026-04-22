@@ -423,17 +423,17 @@ public class Main extends Application {
                         Expand-Archive -Path ./tools/VRCNicoNicoPlaylistConverter.zip -DestinationPath ./tools/
                         Remove-Item ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
                         Remove-Item ./start.bat
-                        Remove-Item ./start2.bat
                         Remove-Item ./start.ps1
+                        Remove-Item ./readme*.txt -Force
                         Remove-Item ./lang -Recurse -Force
                         Move-Item -Path ./tools/key.txt ./key.txt
                         Move-Item -Path ./tools/cookie.txt ./cookie.txt
                         Move-Item -Path ./tools/VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar -Destination ./
                         Move-Item -Path ./tools/start.bat -Destination ./
-                        Move-Item -Path ./tools/start2.bat -Destination ./
                         Move-Item -Path ./tools/start.ps1 -Destination ./
                         New-Item -ItemType Directory -Path ./lang
                         Move-Item -Path ./tools/lang/* -Destination ./lang
+                        Move-Item -Path ./tools/readme*.txt -Destination ./
                         
                         Remove-Item ./tools -Recurse -Force
                         New-Item -ItemType Directory -Path ./tools/
