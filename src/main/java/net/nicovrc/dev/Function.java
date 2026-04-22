@@ -6,6 +6,8 @@ import com.sun.security.auth.module.NTSystem;
 import com.sun.security.auth.module.UnixSystem;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import net.nicovrc.dev.data.NicoNicoCookie;
 import net.nicovrc.dev.data.NicoNicoPlayList;
 import net.nicovrc.dev.data.PlayListData;
@@ -807,23 +809,36 @@ public class Function {
                 new File(jsonFileName).delete();
             }
 
-            try (FileWriter file1 = new FileWriter(jsonFileName);
-                 PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("");
+            fileChooser.getExtensionFilters().add(outputMode.endsWith(langData.get("main_json") + ")") ? new FileChooser.ExtensionFilter("Json File", "*.json") : new FileChooser.ExtensionFilter("Prefab File", "*.prefab"));
+            fileChooser.setInitialFileName(jsonFileName);
 
-                pw.print(jsonText);
-            } catch (Exception e){
-                //e.printStackTrace();
-            }
+            final String final_jsonText = jsonText;
+            final String final_jsonBackupText = jsonBackupText;
+            Platform.runLater(()->{
+                File file = fileChooser.showSaveDialog(new Stage());
 
-            if (jsonBackupText != null){
-                try (FileWriter file1 = new FileWriter(jsonFileName.replaceAll("\\.json", "_backup.json"));
-                     PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+                if (file != null) {
+                    try (FileWriter file1 = new FileWriter(file);
+                         PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
 
-                    pw.print(jsonBackupText);
-                } catch (Exception e){
-                    //e.printStackTrace();
+                        pw.print(final_jsonText);
+                    } catch (Exception e){
+                        //e.printStackTrace();
+                    }
+
+                    if (final_jsonBackupText != null){
+                        try (FileWriter file1 = new FileWriter(file.getCanonicalPath().replaceAll("\\.json", "_backup.json"));
+                             PrintWriter pw = new PrintWriter(new BufferedWriter(file1))){
+
+                            pw.print(final_jsonBackupText);
+                        } catch (Exception e){
+                            //e.printStackTrace();
+                        }
+                    }
                 }
-            }
+            });
 
             if (status != null){
                 Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", outputMode)));
@@ -1044,12 +1059,52 @@ public class Function {
 
                     //System.out.println(new String(exec0.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
                     //System.out.println(new String(exec0.getErrorStream().readAllBytes(), StandardCharsets.UTF_8));
+
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("");
+                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Video File", "*.mp4"));
+                    fileChooser.setInitialFileName(outputMode+".mp4");
+                    Platform.runLater(()->{
+                        File file = fileChooser.showSaveDialog(new Stage());
+
+                        if (file != null) {
+                            try {
+                                FileWrite_binary(file.getCanonicalPath(), FileRead_binary("./"+outputMode+".mp4"));
+                                new File("./"+outputMode+".mp4").delete();
+                            } catch (Exception e){
+                                // e.printStackTrace();
+                            }
+                        }
+                    });
+
+                    if (status != null){
+                        Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", outputMode)));
+                    } else {
+                        System.out.println(langData.get("main_status_get_success").replaceAll("#player#", outputMode));
+                    }
+
                     Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", outputMode)));
                 } else {
 
                     ProcessBuilder pb = new ProcessBuilder(ffmpegPass, "-v", "quiet", "-framerate", "1", "-pattern_type", "glob", "-i", "'./temp/%08d.*'", "-c:v", "libx264", "-r", "60", "-pix_fmt", "yuv420p", "./"+outputMode+".mp4");
                     Process process = pb.start();
                     process.waitFor();
+
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("");
+                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Video File", "*.mp4"));
+                    fileChooser.setInitialFileName(outputMode+".mp4");
+                    File file = fileChooser.showSaveDialog(new Stage());
+
+                    if (file != null) {
+                        try {
+                            FileWrite_binary(file.getCanonicalPath(), FileRead_binary("./"+outputMode+".mp4"));
+                            new File("./"+outputMode+".mp4").delete();
+                        } catch (Exception e){
+                            // e.printStackTrace();
+                        }
+                    }
+
                     Platform.runLater(()->status.setText(langData.get("main_status_get_success").replaceAll("#player#", outputMode)));
                 }
             } catch (Exception e) {

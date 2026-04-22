@@ -708,6 +708,7 @@ public class Main extends Application {
             main_stage.setScene(main_scene);
             main_stage.showAndWait();
 
+
         } else {
 
             System.out.println("自動化モード～♪");
