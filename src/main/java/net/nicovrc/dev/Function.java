@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 public class Function {
 
-    public static final String Version = "0.4.0-rc.1";
+    public static final String Version = "0.5.0-rc.1";
 
     public static final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
 

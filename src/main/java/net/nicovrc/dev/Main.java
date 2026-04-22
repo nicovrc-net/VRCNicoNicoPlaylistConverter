@@ -400,8 +400,25 @@ public class Main extends Application {
                         update_file.delete();
                     }
 
-                    Function.FileWrite_text("./tools/update.bat", "@echo off\npowershell -NoProfile -ExecutionPolicy Unrestricted ./update.ps1\nexit".replaceAll("\\./", CurrentFolderPass + "/"));
+                    Function.FileWrite_text("./tools/update.bat", "@echo off\npowershell -NoProfile -ExecutionPolicy Unrestricted ./tools/update.ps1\nexit");
                     String str = """
+                        
+                        $check = "True";
+                        while ($i -eq "True") {
+                        
+                          try {
+                            $fileStream = [System.IO.File]::Open(".\\tools\\jdk-21\\bin\\java.exe", 'Open', 'ReadWrite', 'None')
+                            $check = "False";
+                          } catch {
+                            $check = "True";
+                          } finally {
+                            if ($null -ne $fileStream) {
+                              $fileStream.Close()
+                            }
+                          }
+                        
+                        }
+                        
                         Invoke-WebRequest -Uri https://github.com/nicovrc-net/VRCNicoNicoPlaylistConverter/releases/download/#ver#/VRCNicoNicoPlaylistConverter.zip -OutFile ./tools/VRCNicoNicoPlaylistConverter.zip
                         Expand-Archive -Path ./tools/VRCNicoNicoPlaylistConverter.zip -DestinationPath ./tools/
                         Remove-Item ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
@@ -483,18 +500,8 @@ public class Main extends Application {
                         try {
                             final Runtime runtime = Runtime.getRuntime();
                             final Process exec0 = runtime.exec(new String[]{"./tools/update.bat"});
-                            Thread.ofVirtual().start(() -> {
-                                try {
-                                    Thread.sleep(5000L);
-                                } catch (Exception ex) {
-                                    //ex.printStackTrace();
-                                }
-
-                                if (exec0.isAlive()) {
-                                    exec0.destroy();
-                                }
-                            });
-                            exec0.waitFor();
+                            main_stage.close();
+                            runtime.exit(0);
                         } catch (Exception ex){
                             // ex.printStackTrace();
                         }

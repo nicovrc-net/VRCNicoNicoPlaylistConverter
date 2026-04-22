@@ -64,7 +64,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.0
         with:
           name: batch4
-          path: ./run-batch/start2.bat
+          path: ./run-batch/VRCNicoNicoPlaylist_start.bat
 
       - name: Upload Readme
         uses: actions/upload-artifact@v7.0.0
@@ -161,7 +161,7 @@ jobs:
         run: |
           mv ./VRCNicoNicoPlaylist_start.bat start.bat
           mv ./VRCNicoNicoPlaylist_start_linux.sh start_forLinux.sh
-          zip VRCNicoNicoPlaylistConverter.zip VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar start.bat start2.bat start.ps1 start_forLinux.sh readme.txt readme_en.txt readme_ko.txt readme_zh-hans.txt readme_zh-hant.txt
+          zip VRCNicoNicoPlaylistConverter.zip VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar start.bat start.ps1 start_forLinux.sh readme.txt readme_en.txt readme_ko.txt readme_zh-hans.txt readme_zh-hant.txt
         shell: bash
 
       - name: Linux Bash Setup Test
@@ -232,6 +232,7 @@ jobs:
           release_name: v${{ github.ref }}
           body: |
             - アップデート処理バッチをPowerShell化
+            - 起動パッチをPowershell版に統一
 
           draft: false
           prerelease: true
