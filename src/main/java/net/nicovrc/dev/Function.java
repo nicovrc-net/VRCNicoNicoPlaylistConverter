@@ -942,7 +942,8 @@ public class Function {
                 }
             }
 
-            if (!matcher_imagefile.matcher(inputText).find()){
+            Matcher matcher = matcher_imagefile.matcher(inputText);
+            if (!matcher.find()){
                 if (status != null){
                     Platform.runLater(()->status.setText(langData.get("main_status_sliden_error")));
                 } else {
@@ -962,7 +963,7 @@ public class Function {
             file1.mkdir();
 
             String[] split = inputText.split("\n");
-            String kaku = split[0].split("\\.")[split[0].split("\\.").length - 1];
+            String kaku = matcher.group(1);
             int size = split.length;
 
             if (status != null){
@@ -980,7 +981,7 @@ public class Function {
                 for (int i = 0; i < size; i++){
                     if (!split[i].startsWith("http")){
                         String[] split1 = split[i].split("\\.");
-                        String newFileName = String.format("%08d", i) + "." + split1[split1.length - 1];
+                        String newFileName = String.format("%08d", i) + kaku;
 
                         FileWrite_binary("./temp/"+newFileName, FileRead_binary(split[i]));
                     } else {
@@ -1037,21 +1038,29 @@ public class Function {
 
                 if (isWindows) {
 
-                    String command = "cd /D \""+new File("./temp").getCanonicalPath()+"\"\n"+ffmpegPass+" -framerate 1 -i %%08d."+kaku+" -c:v libx264 -r 60 -pix_fmt yuv420p ../"+outputMode+".mp4";
-                    FileWrite_text("./temp.bat", command);
+                    //String command = "cd /D \""+new File("./temp").getCanonicalPath()+"\"\n"+ffmpegPass+" -v quiet -framerate 1 -i %%08d."+kaku+" -c:v libx264 -r 60 -pix_fmt yuv420p ../"+outputMode+".mp4\ndel ../temp.bat";
+                    String command = "Set-Location \""+new File("./temp").getCanonicalPath()+"\"\n"+ffmpegPass+" -v quiet -framerate 1 -i %08d"+kaku+" -c:v libx264 -r 60 -pix_fmt yuv420p ../"+outputMode+".mp4\nRemove-Item ../ffmpeg.ps1 -Recurse -Force\n\n# SIG # Begin signature block\n# MIIIpQYJKoZIhvcNAQcCoIIIljCCCJICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB\n# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR\n# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUMCDYTd3PEqF8vNhZ8AcoovFe\n# ZSqgggUuMIIFKjCCAxKgAwIBAgIQFu7PAOinJJxLTeEeaGSG+TANBgkqhkiG9w0B\n# AQsFADAsMSowKAYDVQQDDCFuaWNvdnJjLm5ldCBPVT1TZWxmLXNpZ25lZCBSb290\n# Q0EwIBcNMjYwNDIwMTIxNzA0WhgPMjA5ODEyMzExNTAwMDBaMCwxKjAoBgNVBAMM\n# IW5pY292cmMubmV0IE9VPVNlbGYtc2lnbmVkIFJvb3RDQTCCAiIwDQYJKoZIhvcN\n# AQEBBQADggIPADCCAgoCggIBALq2vwv7CZYo6E4uRw+dE1maw/ubYxBWjMD67SZU\n# b6dHv4wz2h3sNwUoCBi7pemUJ/pGfEfr8Wr/NG3uJwjw9HOJYm12Wu3hjNYVHFwq\n# SiEkkYXpfAlSEOPvwuGsINLLkf5TtWGZSr/4NkvbvAVVqWsli1EOYTceOaYmXXQ+\n# VXfEaNYhpOX/KmAugCDAfEuAFWZBu0jAoXIC+DvvTn1qiiSCvD4jCbbUB5I1mCIb\n# l4B4mHaMpt6GrZE8G5eif5vZXa0ikt+jWuwGCyNApQhfVuDGSZtHpq78PSgbms6D\n# LhOhXzwVsgno6RzGpVDeyyBzqYFURup1btajOCH7T+3SQXS6PCEdyRsNnBmRP/WS\n# uhD124ElhaHn7k9HxPiaM+Om4BYQJwMvOAcRkNDsBTvLKm7gM53dd+VaMYxLfZvc\n# o1cK7zqGMGCqd8V1nOstkUGYSZViaUdvP9yCkO8IqZpJv63iCHlaTTw1RT/xXosx\n# RrQCKUX+D5ZKUNnT52vNs6B5W7Ijyuwxdzrfu6g3+d2vVLwBgLlepLR9NeqZgzKF\n# g64QzkJ5OQkJsExBEeKeqrVuaL3jQvrI7HRhy1XAMOJlq1gefdC+bQTLEENNrATb\n# 02ZhMHvmYFxj6Ce9qXDHdLZxGuVqrYtCUz6f2MFR6Nd/ifTnCDg6Cd5bn+kgwyFz\n# kOphAgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcD\n# AzAdBgNVHQ4EFgQUCQFMhKmdgTdjvy01UeIx8bj4dnQwDQYJKoZIhvcNAQELBQAD\n# ggIBAFhcx3r2HS99DtbsnYuVsMMt3BPE9h83dY8o0gta20T7BVgukRMoVCnKVWxT\n# cKKn6umGLFptCyQgf1p5MHh+hCOUAK/fu2v6s3WNu5/HW0P/EBGmsptl+ROT8hEc\n# U7p2Q9kjMcxP6w7afHm78f8PZe9IXxOf9xL7vUzqTopgOjFArUE97o4LTNTuJP4G\n# 1cMJHTKy6ZFRgCpupl2ktEe6/m9HSFz61+3xkotnwZozZ1yPfz/3Knd5QqiNtE+Z\n# KdyPocIjxjo6opi9uex6qMPMnXAOLms/w2rlC44bbUF+7NxIBinIS0m1nNp00z0c\n# qKVcnlkeaJnfyeQsocJG+/i+EXn7cIEO8+YZJH5bsv+XexiTP8SS4QlainVwb963\n# oMCZRplbrMfbWufk9cpUsW8blqJIN4+f9T5hTf8+RaqUXKDmGMPlYpEHTy1mNIke\n# B27qph5Cg2R5A/EZqVJyI00Qj8/WrfH/5wJCLB9C0sKovq99iFb/6I7Mo0GNs9rt\n# ZoNUZDk5aZUQLQVGRq8kXhS3O7nfF+8FsfjiAHHVf33ioG/3wnDQBZICwn273Tui\n# zbZ/fyXvu7mTKsv6SsmTjGoO0ql02ufChDZgD1j8NOGmm0C5l087o4gbUW9Z8hlM\n# ctVq3PhmU9UfW/Efepk3tTRRwLde7Brs3PCzw8v1iqWsq9SoMYIC4TCCAt0CAQEw\n# QDAsMSowKAYDVQQDDCFuaWNvdnJjLm5ldCBPVT1TZWxmLXNpZ25lZCBSb290Q0EC\n# EBbuzwDopyScS03hHmhkhvkwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAI\n# oAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIB\n# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFKxYg+9v49XCib2sE2J2\n# SwtQq6VVMA0GCSqGSIb3DQEBAQUABIICAGv7uMalY1vsVDqu2WhzvYtSOpw2sEuV\n# sG3x7Myl4kTKMNXu5fw7u2vcBedEXiqjy0BM9RAxCpkyvQQQusXdbk8qtclBqdYQ\n# cGl4cRKkiPFQpsOGNpIQj4w7EMGa11kpjZLOuJiUH3EsNGf3hA/NtW7gZswSX3v3\n# 0+3Hi/NjMl+YBEwTvIMGd0FH4qNNo5QdHyv0HKY4fTrQaJblBsbAyl66wsylgbXY\n# YTkGhHZX7B73BZ/lpOLd2FOcBhOh9YtZ755vGEXBIoP6iSUY4J9DAmOgiFEcMmHL\n# HPFCtU3Yj2/vTE5qQKDdVkXYou9t+9QZDiZe1d2+gsl8D4HvBVpFvx9uUY6ESuxP\n# 1qoM+s9+ia/0CS5Hz8soXCTU7Ljy8OwK3Wv7tYyRqvWB8o1loMOmiL3b01YZh/9K\n# rwqo3mnXysonLXH/2e0l5AqTz04NHLiC0DdCWHiMhEXenZa8LNcso4AygRqGwZa4\n# VL0imGb/c+1GhZpIm+xz5dT4/1u4+bG4q6FuZ+o/vl+Q2P+KwEqXnY8SwLhVKmWj\n# q7KYlWXcAhHMvoAJzrExULqdKmoCKLMSxLTX97vM52gIWLm7fnvdCPVs4ahN2bMF\n# vLDqUpdQG1fYrCkb3vhJ3OcoCCTNKWXX9139R02nygZ2jMjFeQ6qsn1+3ewtx7Dd\n# kwteGAWwRBdO\n# SIG # End signature block";
+                    FileWrite_text("./ffmpeg.ps1", command);
+
+                    FileWrite_text("./temp.bat", "powershell -NoProfile -ExecutionPolicy Unrestricted .\\ffmpeg.ps1\n");
 
                     final Runtime runtime = Runtime.getRuntime();
                     final Process exec0 = runtime.exec(new String[]{"./temp.bat"});
-                    Thread.ofVirtual().start(() -> {
-                        try {
-                            Thread.sleep(15000L);
-                        } catch (Exception ex) {
-                            //ex.printStackTrace();
+                    Thread.ofVirtual().start(()->{
+                        boolean isFound = new File("./ffmpeg.ps1").exists();
+                        while (isFound){
+                            isFound = new File("./ffmpeg.ps1").exists();
+                            try {
+                                Thread.sleep(1000L);
+                            } catch (Exception e){
+                                //e.printStackTrace();
+                            }
                         }
-
                         if (exec0.isAlive()) {
                             exec0.destroy();
                         }
+                        new File("./temp.bat").delete();
+                        FileWrite_text("./ffmpeg_debug.ps1", command);
                     });
                     exec0.waitFor();
 
