@@ -1,4 +1,4 @@
-if ((Test-Path '.\tools')){
+if ( -not (Test-Path '.\tools')){
     New-Item -ItemType Directory -Path ./tools
 }
 
