@@ -4,7 +4,7 @@ import net.nicovrc.dev.data.PlayListData;
 
 import java.util.List;
 
-public class Kinel implements Prefab {
+public class Kinel_v2 implements Prefab {
 
     private List<PlayListData> urls = null;
     private final String prefab_1 = """

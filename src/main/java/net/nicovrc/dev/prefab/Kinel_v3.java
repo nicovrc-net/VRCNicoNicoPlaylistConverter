@@ -1,0 +1,102 @@
+package net.nicovrc.dev.prefab;
+
+import net.nicovrc.dev.data.PlayListData;
+
+import java.util.List;
+
+public class Kinel_v3 implements Prefab {
+
+    private List<PlayListData> urls = null;
+    private final String prefab_1 = """
+            %YAML 1.1
+            %TAG !u! tag:unity3d.com,2011:
+            --- !u!1 &3385619802715106035
+            GameObject:
+              m_ObjectHideFlags: 0
+              m_CorrespondingSourceObject: {fileID: 0}
+              m_PrefabInstance: {fileID: 0}
+              m_PrefabAsset: {fileID: 0}
+              serializedVersion: 6
+              m_Component:
+              - component: {fileID: 3910927524170190939}
+              - component: {fileID: 8313551020976545073}
+              m_Layer: 0
+              m_Name: Playlist 2 1
+              m_TagString: Untagged
+              m_Icon: {fileID: 0}
+              m_NavMeshLayer: 0
+              m_StaticEditorFlags: 0
+              m_IsActive: 1
+            --- !u!4 &3910927524170190939
+            Transform:
+              m_ObjectHideFlags: 0
+              m_CorrespondingSourceObject: {fileID: 0}
+              m_PrefabInstance: {fileID: 0}
+              m_PrefabAsset: {fileID: 0}
+              m_GameObject: {fileID: 3385619802715106035}
+              serializedVersion: 2
+              m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+              m_LocalPosition: {x: 0, y: -78.8, z: -7.485}
+              m_LocalScale: {x: 0.8, y: 0.8, z: 1}
+              m_ConstrainProportionsScale: 0
+              m_Children: []
+              m_Father: {fileID: 0}
+              m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+            --- !u!114 &8313551020976545073
+            MonoBehaviour:
+              m_ObjectHideFlags: 0
+              m_CorrespondingSourceObject: {fileID: 0}
+              m_PrefabInstance: {fileID: 0}
+              m_PrefabAsset: {fileID: 0}
+              m_GameObject: {fileID: 3385619802715106035}
+              m_Enabled: 1
+              m_EditorHideFlags: 0
+              m_Script: {fileID: 11500000, guid: ae232c25ab554ea1b8d5894e5a397748, type: 3}
+              m_Name:\s
+              m_EditorClassIdentifier:\s
+              playlistName: #playlistname#
+              Tracks:
+            """;
+
+    private final String prefab_video = """
+              - Url:
+                  url: #url#
+                Title: #title#
+                Type: 1
+            """;
+
+    private String playlistName = "";
+
+    @Override
+    public void setUrls(List<PlayListData> urls) {
+        this.urls = urls;
+    }
+
+    public void setPlaylistName(String playlistName){
+        this.playlistName = playlistName;
+    }
+
+    @Override
+    public String getPrefab() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(prefab_1.replaceAll("#playlistname#", unicode(playlistName)));
+
+        if (urls != null && !urls.isEmpty()){
+            for (PlayListData url : urls) {
+                sb.append(prefab_video.replaceAll("#title#", unicode(url.getTitle())).replaceAll("#url#", url.getVideoURL()));
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private String unicode(String original){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < original.length(); i++) {
+            sb.append(String.format("\\\\u%04X", Character.codePointAt(original, i)));
+        }
+        String unicode = sb.toString();
+        return unicode;
+    }
+}

@@ -239,7 +239,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - バグ修正
+            - りら式 v3に対応
 
           draft: false
           prerelease: false

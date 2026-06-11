@@ -10,7 +10,8 @@ import net.nicovrc.dev.data.NicoNicoCookie;
 import net.nicovrc.dev.data.NicoNicoPlayList;
 import net.nicovrc.dev.data.PlayListData;
 import net.nicovrc.dev.json.*;
-import net.nicovrc.dev.prefab.Kinel;
+import net.nicovrc.dev.prefab.Kinel_v2;
+import net.nicovrc.dev.prefab.Kinel_v3;
 import net.nicovrc.dev.prefab.YamaPlayer1;
 
 import javax.crypto.Cipher;
@@ -32,11 +33,11 @@ import java.util.regex.Pattern;
 
 public class Function {
 
-    public static final String Version = "1.0.0";
+    public static final String Version = "1.1.0";
 
     public static final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
 
-    public static final String UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0 VRCNicoNicoPlaylistConverter/"+Version;
+    public static final String UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0 VRCNicoNicoPlaylistConverter/"+Version;
     public static final String NicoNicoLoginUrl = "https://account.nicovideo.jp/login?site=niconico&next_url=%2F&sec=header_pc&cmnhd_ref=device%3Dpc%26site%3Dniconico%26pos%3Dheader_login%26page%3Dtop";
     public static final String LoginAfterUrl = "https://www.nicovideo.jp/";
 
@@ -644,12 +645,21 @@ public class Function {
 
                 jsonText = iwaSync.getPrefab();
 
-            } else if (outputMode.equals("KineL式(りら式) ("+langData.get("main_prefab")+")")){
+            } else if (outputMode.equals("KineL式(りら式) v2 ("+langData.get("main_prefab")+")")) {
 
-                Kinel kinel = new Kinel();
+                Kinel_v2 kinel = new Kinel_v2();
                 kinel.setUrls(temp);
 
                 jsonText = kinel.getPrefab();
+
+            } else if (outputMode.equals("KineL式(りら式) v3 ("+langData.get("main_prefab")+")")){
+
+                Kinel_v3 kinel = new Kinel_v3();
+                kinel.setUrls(temp);
+                kinel.setPlaylistName(playlistTitle);
+
+                jsonText = kinel.getPrefab();
+
 
             } else if (outputMode.equals("YamaPlayer ("+langData.get("main_json")+")")){
 
