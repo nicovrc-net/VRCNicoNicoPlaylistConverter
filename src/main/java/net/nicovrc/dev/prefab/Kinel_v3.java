@@ -80,11 +80,11 @@ public class Kinel_v3 implements Prefab {
     public String getPrefab() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(prefab_1.replaceAll("#playlistname#", unicode(playlistName)));
+        sb.append(prefab_1.replaceAll("#playlistname#", playlistName));
 
         if (urls != null && !urls.isEmpty()){
             for (PlayListData url : urls) {
-                sb.append(prefab_video.replaceAll("#title#", unicode(url.getTitle())).replaceAll("#url#", url.getVideoURL()));
+                sb.append(prefab_video.replaceAll("#title#", url.getTitle()).replaceAll("#url#", url.getVideoURL()));
             }
         }
 
