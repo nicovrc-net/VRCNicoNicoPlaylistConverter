@@ -182,7 +182,7 @@ jobs:
             echo "Tools Folder OK"
             if [ -d ./tools/jdk-21.0.2 ]; then
               echo "OpenJDK OK"
-              if [ -d ./tools/javafx-sdk-21.0.10 ]; then
+              if [ -d ./tools/javafx-sdk-21.0.11 ]; then
                 echo "JavaFX OK"
               else
                 exit 1
