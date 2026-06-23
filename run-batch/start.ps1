@@ -7,18 +7,25 @@ if ( -not (Test-Path '.\tools\jdk-21.0.2')) {
     Expand-Archive -Path ./tools/openjdk-21.0.2_windows-x64_bin.zip -DestinationPath ./tools/
 }
 
-if ( -not (Test-Path '.\tools\javafx-sdk-21.0.10')) {
-    Invoke-WebRequest -Uri https://download2.gluonhq.com/openjfx/21.0.10/openjfx-21.0.10_windows-x64_bin-sdk.zip -OutFile ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip
-    Expand-Archive -Path ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip -DestinationPath ./tools/
+if ( -not (Test-Path '.\tools\javafx-sdk-21.0.11')) {
+    Invoke-WebRequest -Uri https://download2.gluonhq.com/openjfx/21.0.11/openjfx-21.0.11_windows-x64_bin-sdk.zip -OutFile ./tools/openjfx-21.0.11_windows-x64_bin-sdk.zip
+    Expand-Archive -Path ./tools/openjfx-21.0.11_windows-x64_bin-sdk.zip -DestinationPath ./tools/
 }
 
-if ( -not (Test-Path '.\tools\jcef')) {
-    Invoke-WebRequest -Uri https://github.com/jcefmaven/jcefbuild/releases/download/1.0.70/windows-amd64.tar.gz -OutFile ./tools/windows-amd64.tar.gz
-    Expand-Archive -Path ./tools/windows-amd64.tar.gz -DestinationPath ./tools/jcef
+if ((Test-Path '.\tools\javafx-sdk-21.0.10')) {
+    Remove-Item ./tools/openjfx-21.0.10_windows-x64_bin-sdk.zip
+    Remove-Item -Path ".\tools\javafx-sdk-21.0.10" -Recurse -Force
 }
+
+#if ( -not (Test-Path '.\tools\jcef')) {
+#    Invoke-WebRequest -Uri https://github.com/jcefmaven/jcefbuild/releases/download/1.0.70/windows-amd64.tar.gz -OutFile ./tools/windows-amd64.tar.gz
+#    Expand-Archive -Path ./tools/windows-amd64.tar.gz -DestinationPath ./tools/jcef
+#}
+
+$path = Get-Location
 
 Write-Output "Starting..."
-.\tools\jdk-21.0.2\bin\java.exe --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
+.\tools\jdk-21.0.2\bin\java.exe --module-path "./tools/javafx-sdk-21.0.11/lib" --add-modules javafx.controls,javafx.swing -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
 
 
 

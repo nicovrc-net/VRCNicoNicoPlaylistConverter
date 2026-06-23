@@ -265,7 +265,7 @@ public class Main extends Application {
                                     //System.out.println("Cookie: " + cookie.name + "=" + cookie.value);
                                     if (cookieList.get("nicosid") != null && cookieList.get("user_session") != null){
                                         cefApp.dispose();
-                                        frame_1.dispose();
+                                        frame_1.setVisible(false);
                                     }
                                     return true;
                                 });
@@ -288,17 +288,14 @@ public class Main extends Application {
             cookieList.put("user_session", "dummy");
         }
 
-        while (frame_1.isShowing()){
+        while (cookieList.get("nicosid") == null || cookieList.get("user_session") == null){
             continue;
         }
 
-        if (cookieList.get("nicosid") == null || cookieList.get("user_session") == null){
-            return;
-        } else {
-            if (!new File("./tools/cookie.txt").exists()) {
-                Function.FileWrite_text("./tools/cookie.txt", Function.EncrypterText("nicosid="+cookieList.get("nicosid")+"; user_session="+cookieList.get("user_session")));
-                System.out.println("[Info] "+Function.langData.get("niconico_login_success"));
-            }
+        if (!cookieList.get("nicosid").equals("dummy")){
+            Function.FileWrite_text("./tools/cookie.txt", Function.EncrypterText("nicosid="+cookieList.get("nicosid")+"; user_session="+cookieList.get("user_session")));
+            System.out.println("[Info] "+Function.langData.get("niconico_login_success"));
+            frame_1.dispose();
         }
 
         file = new File("./input.txt");
