@@ -239,7 +239,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - りら式 v3に対応
+            - ニコニコ動画のログインページリニューアルに伴うログイン方法を変更
 
           draft: false
           prerelease: false

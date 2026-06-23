@@ -2,7 +2,7 @@
 
 if [ -d ./tools ]; then
    echo "Starting..."
-   ./tools/jdk-21.0.2/bin/java --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
+   ./tools/jdk-21.0.2/bin/java --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml,javafx.web -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
 else
   mkdir ./tools
 
@@ -28,6 +28,6 @@ else
 
   rm -fr /tools/7z2600
 
-  ./tools/jdk-21.0.2/bin/java --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
+  ./tools/jdk-21.0.2/bin/java --module-path "./tools/javafx-sdk-21.0.10/lib" --add-modules javafx.controls,javafx.fxml,,javafx.swing -jar ./VRCNicoNicoPlaylistConverter-1.0-SNAPSHOT-all.jar
   
 fi
