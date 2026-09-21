@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 
 public class Function {
 
-    public static final String Version = "1.2.0";
+    public static final String Version = "1.2.1";
 
     public static final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
 
@@ -60,183 +60,6 @@ public class Function {
     public static HashMap<String, String> langData = null;
     private static String key_str = new String(Base64.getEncoder().encode("VRCNicoNicoPlayListConverter".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
 
-    public static NicoNicoCookie NicoNicoLogin(String email, String password){
-
-        NicoNicoCookie cookie = new NicoNicoCookie();
-        cookie.setLogin(false);
-
-        try (HttpClient client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .connectTimeout(Duration.ofSeconds(5))
-                .build()) {
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(NicoNicoLoginUrl))
-                    .headers("User-Agent", UserAgent)
-                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-
-            List<String> headers = send.headers().allValues("set-cookie");
-            for (String str : headers){
-                //System.out.println(str);
-                Matcher matcher = cookie_pattern1.matcher(str);
-                if (matcher.find()){
-                    //System.out.println(matcher.group(1));
-                    if (matcher.group(1).equals("nicosid")){
-                        cookie.setNicosid(matcher.group(2));
-                        break;
-                    }
-
-                    if (matcher.group(1).equals("registrationActionTrackId")){
-                        cookie.setRegistrationActionTrackId(matcher.group(2));
-                    }
-                }
-            }
-
-
-            //System.out.println("mail_tel="+ URLEncoder.encode(email, StandardCharsets.UTF_8) +"&password="+URLEncoder.encode(password, StandardCharsets.UTF_8)+"&auth_id="+new Date().getTime());
-            //System.out.println("registrationActionTrackId="+cookie.getRegistrationActionTrackId()+"; nicosid="+cookie.getNicosid());
-            request = HttpRequest.newBuilder()
-                    .uri(new URI("https://account.nicovideo.jp/login/redirector?show_button_twitter=1&show_button_facebook=1&site=niconico&sec=header_pc&next_url=%2F"))
-                    .headers("User-Agent", UserAgent)
-                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
-                    .headers("Content-Type", "application/x-www-form-urlencoded")
-                    .headers("Cookie", "registrationActionTrackId="+cookie.getRegistrationActionTrackId()+"; nicosid="+cookie.getNicosid())
-                    .POST(HttpRequest.BodyPublishers.ofString("mail_tel="+ URLEncoder.encode(email, StandardCharsets.UTF_8) +"&password="+URLEncoder.encode(password, StandardCharsets.UTF_8)+"&auth_id="+new Date().getTime()))
-                    .build();
-            send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-
-            Map<String, List<String>> map = send.headers().map();
-            /*send.headers().map().forEach((name, value)->{
-                System.out.println("--- " + name + " ---");
-                for (String str : value){
-                    System.out.println(str);
-                }
-            });*/
-
-            if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().startsWith(LoginAfterUrl)){
-                for (String s : map.get("set-cookie")) {
-                    Matcher matcher1 = cookie_pattern1.matcher(s);
-                    Matcher matcher2 = cookie_pattern2.matcher(s);
-                    //System.out.println(s);
-                    if (matcher1.find() && matcher1.group(1).equals("user_session") && !matcher1.group(2).equals("deleted")){
-                        //System.out.println(matcher1.group(1));
-                        cookie.setLogin(true);
-                        cookie.setUser_session(matcher1.group(2));
-
-                        break;
-                    }
-                    if (matcher2.find() && matcher2.group(1).equals("user_session") && !matcher2.group(2).equals("deleted")){
-                        //System.out.println(matcher.group(1));
-                        cookie.setLogin(true);
-                        cookie.setUser_session(matcher2.group(2));
-
-                        break;
-                    }
-                }
-            } else if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().startsWith("https://account.nicovideo.jp/mfa?")) {
-                cookie.setMfw_url(send.headers().firstValue("location").get());
-                for (String s : map.get("set-cookie")) {
-                    Matcher matcher = cookie_pattern3.matcher(s);
-                    if (matcher.find() && matcher.group(1).equals("mfa_session") && !matcher.group(2).equals("deleted")){
-                        cookie.setMfa_session(matcher.group(2));
-                        break;
-                    }
-                }
-            }
-
-        } catch (Exception e){
-            //e.printStackTrace();
-        }
-
-        return cookie;
-
-    }
-
-    public static NicoNicoCookie NicoNicoLogin(NicoNicoCookie cookie, String code) throws Exception{
-
-        // debug用
-        if (code == null || code.isEmpty()){
-            System.out.println("otp : ");
-            Scanner scanner = new Scanner(System.in);
-            code = scanner.next();
-        }
-
-        try (HttpClient client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .connectTimeout(Duration.ofSeconds(5))
-                .build()) {
-
-            //System.out.println(cookie.getMfw_url());
-            //System.out.println("nicosid="+cookie.getNicosid()+"; mfa_session="+cookie.getMfa_session());
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(cookie.getMfw_url()))
-                    .headers("User-Agent", UserAgent)
-                    .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                    .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
-                    .headers("Content-Type", "application/x-www-form-urlencoded")
-                    .headers("Cookie", "nicosid="+cookie.getNicosid()+"; mfa_session="+cookie.getMfa_session())
-                    .POST(HttpRequest.BodyPublishers.ofString("otp="+ code +"&loginBtn=%E3%83%AD%E3%82%B0%E3%82%A4%E3%83%B3&device_name=Firefox+%28Windows%29"))
-                    .build();
-
-            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-
-            /*Map<String, List<String>> map = send.headers().map();
-            map.forEach((name, value)->{
-                System.out.println("--- " + name + " ---");
-                for (String str : value){
-                    System.out.println(str);
-                }
-            });*/
-
-            if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().startsWith("https://account.nicovideo.jp/login/mfa/callback")){
-                String location = send.headers().firstValue("location").get();
-                //System.out.println("url : "+ location);
-                //System.out.println("cookie : " + "nicosid="+cookie.getNicosid()+"; mfa_session="+cookie.getMfa_session());
-
-                request = HttpRequest.newBuilder()
-                        .uri(new URI(location))
-                        .headers("User-Agent", UserAgent)
-                        .headers("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                        .headers("Accept-Language", "ja,en;q=0.7,en-US;q=0.3")
-                        .headers("Cookie", "nicosid="+cookie.getNicosid())
-                        .GET()
-                        .build();
-
-                send = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-                Map<String, List<String>> map = send.headers().map();
-                /*map.forEach((name, value)->{
-                    System.out.println("--- " + name + " ---");
-                    for (String str : value){
-                        System.out.println(str);
-                    }
-                });*/
-                //System.out.println(send.body());
-
-                if (send.headers().firstValue("location").isPresent() && send.headers().firstValue("location").get().equals(LoginAfterUrl)){
-                    for (String str : map.get("set-cookie")) {
-                        Matcher matcher = cookie_pattern1.matcher(str);
-                        if (matcher.find() && matcher.group(1).equals("user_session") && !matcher.group(2).equals("deleted")){
-                            cookie.setLogin(true);
-                            cookie.setUser_session(matcher.group(2));
-                            break;
-                        }
-                    }
-                }
-
-            }
-
-        }
-
-        return cookie;
-    }
     public static String FileRead_text(String filePass){
         String Text = null;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePass), StandardCharsets.UTF_8))){
@@ -480,6 +303,10 @@ public class Function {
 
                     //System.out.println(json);
                 }
+
+                //for (PlayListData data : list){
+                //    System.out.println(data.getTitle() + " / " + data.getVideoURL());
+                //}
             }
 
         } catch (Exception e){
@@ -548,7 +375,7 @@ public class Function {
             if (outputSiteName.equals("nicovrc.net")){
                 startURL = "https://nicovrc.net/?url=";
             } else if (outputSiteName.equals("tool.suzumebachi.xyz")) {
-                startURL = "https://testniconicomment.suzumebachi.xyz/nicovideo/#id#";
+                startURL = "https://edgecache.suzumebachi.xyz/data/#id#/master_dummy.m3u8";
             }
 
             // 動画情報取得
@@ -559,8 +386,8 @@ public class Function {
                 if (data.getTitle().equals("動画")){
                     PlayListData tempData = new PlayListData();
                     tempData.setTitle(getVideoTitle(data.getVideoURL(), cookieText));
-                    if (startURL.startsWith("https://testniconicomment")){
-                        tempData.setVideoURL(startURL.replaceAll("#id", data.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]));
+                    if (startURL.startsWith("https://edgecache.suzumebachi.xyz")){
+                        tempData.setVideoURL(startURL.replaceAll("#id#", data.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]));
                     } else {
                         tempData.setVideoURL(startURL+data.getVideoURL());
                     }
@@ -581,6 +408,7 @@ public class Function {
 
                     int i = 0;
                     for (PlayListData d : playList.getPlaylistData()) {
+                        //System.out.println(d.getTitle() + " / " + d.getVideoURL());
                         final String finalI = ""+i;
                         if (status != null){
                             Platform.runLater(()->status.setText(langData.get("main_status_get_mylist_get_list").replaceAll("#now#", finalI).replaceAll("#max#", ""+playList.getPlaylistData().size())));
@@ -588,10 +416,10 @@ public class Function {
                             System.out.println(langData.get("main_status_get_mylist_get_list").replaceAll("#now#", finalI).replaceAll("#max#", ""+playList.getPlaylistData().size()));
                         }
 
-                        if (startURL.startsWith("https://testniconicomment")){
-                            d.setVideoURL(startURL.replaceAll("#id", data.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]));
+                        if (startURL.startsWith("https://edgecache.suzumebachi.xyz")){
+                            d.setVideoURL(startURL.replaceAll("#id#", d.getVideoURL().split("/")[data.getVideoURL().split("/").length - 1]));
                         } else {
-                            d.setVideoURL(startURL+data.getVideoURL());
+                            d.setVideoURL(startURL+d.getVideoURL());
                         }
                         temp.add(d);
                         i++;
