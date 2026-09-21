@@ -6,7 +6,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import net.nicovrc.dev.data.NicoNicoCookie;
 import net.nicovrc.dev.data.NicoNicoPlayList;
 import net.nicovrc.dev.data.PlayListData;
 import net.nicovrc.dev.json.*;
@@ -37,7 +36,7 @@ public class Function {
 
     public static final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
 
-    public static final String UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 Firefox/152.0 VRCNicoNicoPlaylistConverter/"+Version;
+    public static final String UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0 VRCNicoNicoPlaylistConverter/"+Version;
     public static final String NicoNicoLoginUrl = "https://account.nicovideo.jp/login?site=niconico&next_url=%2F&sec=header_pc&cmnhd_ref=device%3Dpc%26site%3Dniconico%26pos%3Dheader_login%26page%3Dtop";
     public static final String LoginAfterUrl = "https://www.nicovideo.jp/";
 
@@ -48,10 +47,6 @@ public class Function {
 
     public static final Pattern matcher_imagefile = Pattern.compile("(\\.jpg|\\.jpeg|\\.png|\\.webp|\\.gif)");
     public static final Pattern matcher_ffmpeg = Pattern.compile("/(.+)/ffmpeg");
-
-    private static Pattern cookie_pattern1 = Pattern.compile("(.+)=(.+); Max-Age=");
-    private static Pattern cookie_pattern2 = Pattern.compile("(.+)=(.+); expires=");
-    private static Pattern cookie_pattern3 = Pattern.compile("(.+)=(.+); Path=");
 
     private static Pattern matcher_NicoNicoMyList = Pattern.compile("data-initial-data=\"\\{(.+)\\}");
 
